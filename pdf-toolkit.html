@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เครื่องมือ PDF — แยกไฟล์ / รวมไฟล์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{
+    --paper:#F6F3EC;
+    --paper-raised:#FFFFFF;
+    --ink:#24211B;
+    --ink-soft:#5B564A;
+    --line:#DCD5C4;
+    --line-strong:#C7BEA6;
+    --teal:#14625A;
+    --teal-dark:#0E4842;
+    --red:#A23B2E;
+    --red-bg:#F6E7E3;
+    --green:#3F7D4F;
+    --green-bg:#E7F0E6;
+    --amber:#8A5A16;
+    --amber-bg:#F3E7CF;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Sarabun',sans-serif;
+    font-size:15px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:48px 20px 80px;
+  }
+  header.page-head{
+    margin-bottom:36px;
+    border-bottom:1px solid var(--line-strong);
+    padding-bottom:24px;
+  }
+  .kicker{
+    font-size:13px;
+    color:var(--teal-dark);
+    font-weight:600;
+    letter-spacing:.02em;
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .back-link{
+    color:var(--ink-soft);
+    font-weight:600;
+    cursor:pointer;
+    text-decoration:none;
+    border-right:1px solid var(--line-strong);
+    padding-right:10px;
+  }
+  .back-link:hover{ color:var(--ink); }
+  h1{
+    font-size:30px;
+    font-weight:700;
+    margin:0 0 10px;
+    letter-spacing:-0.01em;
+  }
+  .lede{
+    color:var(--ink-soft);
+    font-size:15.5px;
+    max-width:56ch;
+    margin:0;
+  }
+  .card{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px 28px;
+    margin-bottom:20px;
+  }
+  .card-title{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    margin:0 0 4px;
+  }
+  .step-num{
+    font-family:'Sarabun',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    color:var(--paper);
+    background:var(--ink);
+    width:24px;height:24px;
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .card-title h2{
+    font-size:17px;
+    font-weight:600;
+    margin:0;
+  }
+  .card-sub{
+    color:var(--ink-soft);
+    font-size:13.5px;
+    margin:2px 0 20px 36px;
+  }
+
+  /* ---- landing mode picker ---- */
+  .mode-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-top:8px;
+  }
+  @media (max-width:560px){ .mode-grid{grid-template-columns:1fr;} }
+  .mode-card{
+    background:var(--paper-raised);
+    border:1px solid var(--line-strong);
+    border-radius:var(--radius);
+    padding:28px 24px;
+    cursor:pointer;
+    text-align:left;
+    transition:border-color .15s ease, transform .08s ease, box-shadow .15s ease;
+  }
+  .mode-card:hover{
+    border-color:var(--teal);
+    box-shadow:0 2px 0 0 var(--teal);
+  }
+  .mode-card:active{ transform:translateY(1px); }
+  .mode-glyph{
+    width:40px;height:40px;
+    border-radius:50%;
+    background:var(--teal);
+    color:var(--paper);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:16px;
+  }
+  .mode-card.merge .mode-glyph{ background:var(--amber); }
+  .mode-title{
+    font-size:17px;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .mode-desc{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    line-height:1.55;
+  }
+
+  /* ---- shared form elements ---- */
+  .drop-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  @media (max-width:560px){ .drop-row{grid-template-columns:1fr;} }
+  .drop{
+    border:1.5px dashed var(--line-strong);
+    border-radius:var(--radius);
+    padding:20px 16px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+    position:relative;
+  }
+  .drop:hover, .drop.drag{
+    border-color:var(--teal);
+    background:#F1F6F5;
+  }
+  .drop input{
+    position:absolute; inset:0; opacity:0; cursor:pointer;
+  }
+  .drop-label{
+    font-weight:600;
+    font-size:14px;
+    margin-bottom:4px;
+  }
+  .drop-hint{
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+  .drop-file{
+    font-size:13px;
+    color:var(--teal-dark);
+    font-weight:600;
+    margin-top:8px;
+    word-break:break-all;
+  }
+  .field-row{ margin-top:18px; }
+  label.field-label{
+    display:block;
+    font-size:13.5px;
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  select, input[type=text]{
+    width:100%;
+    font-family:'Sarabun',sans-serif;
+    font-size:14.5px;
+    padding:9px 10px;
+    border:1px solid var(--line-strong);
+    border-radius:var(--radius);
+    background:var(--paper-raised);
+    color:var(--ink);
+  }
+  .field-hint{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:5px;
+  }
+  .btn{
+    font-family:'Sarabun',sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    padding:11px 22px;
+    border-radius:var(--radius);
+    border:1px solid var(--ink);
+    background:var(--ink);
+    color:var(--paper);
+    cursor:pointer;
+    transition:opacity .15s ease, transform .05s ease;
+  }
+  .btn:hover{opacity:.85;}
+  .btn:active{transform:translateY(1px);}
+  .btn:disabled{ opacity:.35; cursor:not-allowed; }
+  .btn.teal{background:var(--teal); border-color:var(--teal);}
+  .btn.ghost{ background:transparent; color:var(--ink); border:1px solid var(--line-strong); }
+  .actions{
+    display:flex;
+    gap:12px;
+    margin-top:20px;
+    flex-wrap:wrap;
+  }
+  .summary-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+    margin:18px 0;
+  }
+  @media (max-width:560px){ .summary-grid{grid-template-columns:1fr 1fr;} }
+  .stat{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 14px;
+  }
+  .stat-num{ font-size:22px; font-weight:700; }
+  .stat-label{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
+  .banner{
+    border-radius:var(--radius);
+    padding:14px 16px;
+    font-size:13.5px;
+    margin:16px 0;
+  }
+  .banner.warn{ background:var(--amber-bg); color:var(--amber); }
+  .banner.err{ background:var(--red-bg); color:var(--red); }
+  .banner.ok{ background:var(--green-bg); color:var(--green); }
+  .banner b{font-weight:700;}
+  .checkline{ display:flex; align-items:center; gap:8px; font-size:13.5px; margin-top:10px; }
+  table.log{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13.5px;
+    margin-top:6px;
+  }
+  table.log th{
+    text-align:left; font-size:11.5px; color:var(--ink-soft); font-weight:600;
+    border-bottom:1px solid var(--line-strong); padding:8px 8px;
+  }
+  table.log td{ padding:8px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  .pill{ display:inline-block; font-size:12px; font-weight:600; padding:2px 9px; border-radius:999px; }
+  .pill.ok{background:var(--green-bg); color:var(--green);}
+  .pill.fail{background:var(--red-bg); color:var(--red);}
+  .progress-outer{ height:6px; background:var(--line); border-radius:999px; overflow:hidden; margin:16px 0 6px; }
+  .progress-inner{ height:100%; width:0%; background:var(--teal); transition:width .15s ease; }
+  .progress-text{ font-size:12.5px; color:var(--ink-soft); }
+
+  ul.filelist{ list-style:none; margin:18px 0 0; padding:0; border-top:1px solid var(--line); }
+  li.fileitem{
+    display:flex; align-items:center; gap:10px; padding:10px 4px;
+    border-bottom:1px solid var(--line); background:var(--paper-raised); cursor:grab;
+  }
+  li.fileitem.dragging{ opacity:.4; }
+  li.fileitem.over{ border-top:2px solid var(--teal); }
+  .handle{ color:var(--line-strong); font-size:16px; letter-spacing:1px; user-select:none; flex-shrink:0; }
+  .order-num{ font-size:12px; font-weight:700; color:var(--ink-soft); width:18px; flex-shrink:0; }
+  .file-meta{ flex:1; min-width:0; }
+  .file-name{ font-size:13.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .file-size{ font-size:11.5px; color:var(--ink-soft); }
+  .file-controls{ display:flex; gap:4px; flex-shrink:0; }
+  .icon-btn{
+    border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink-soft);
+    width:26px;height:26px; border-radius:var(--radius); cursor:pointer; font-size:13px; line-height:1;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .icon-btn:hover{ border-color:var(--ink); color:var(--ink); }
+  .icon-btn.remove:hover{ border-color:var(--red); color:var(--red); }
+  .empty-note{ color:var(--ink-soft); font-size:13px; padding:14px 4px; border-bottom:1px solid var(--line); }
+
+  footer.note{
+    margin-top:36px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    border-top:1px solid var(--line);
+    padding-top:16px;
+  }
+  code{ background:#EFEAE0; padding:1px 6px; border-radius:3px; font-size:12.5px; }
+  [data-view]{ display:none; }
+  [data-view].active{ display:block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ VIEW: HOME ============ -->
+  <div data-view="home" class="active">
+    <header class="page-head">
+      <div class="kicker">เครื่องมือ PDF</div>
+      <h1>จัดการไฟล์ PDF</h1>
+      <p class="lede">เลือกสิ่งที่ต้องการทำ — ประมวลผลทั้งหมดในเบราว์เซอร์ของคุณ ไม่มีการอัปโหลดไฟล์ขึ้นเซิร์ฟเวอร์ที่ไหน</p>
+    </header>
+
+    <div class="mode-grid">
+      <div class="mode-card split" onclick="goTo('split')">
+        <div class="mode-glyph">แยก</div>
+        <div class="mode-title">แยกไฟล์ PDF</div>
+        <div class="mode-desc">ตัดไฟล์ PDF หนึ่งไฟล์ออกเป็นหลายไฟล์ย่อย ตามชื่อและจำนวนหน้าที่ระบุไว้ในตาราง Excel</div>
+      </div>
+      <div class="mode-card merge" onclick="goTo('merge')">
+        <div class="mode-glyph">รวม</div>
+        <div class="mode-title">รวมไฟล์ PDF</div>
+        <div class="mode-desc">นำไฟล์ PDF หลายไฟล์มารวมเป็นไฟล์เดียว จัดลำดับได้ตามต้องการก่อนรวม</div>
+      </div>
+    </div>
+
+    <footer class="note">
+      ทำงานด้วย pdf-lib และ SheetJS ทั้งหมดในเครื่องคุณ — เหมาะสำหรับใช้แทน flow อัตโนมัติเดิมที่เคยรันบนเครื่อง
+    </footer>
+  </div>
+
+  <!-- ============ VIEW: SPLIT ============ -->
+  <div data-view="split">
+    <header class="page-head">
+      <div class="kicker"><a class="back-link" onclick="goTo('home')">‹ กลับ</a>เครื่องมือ PDF</div>
+      <h1>แยก PDF ตามรายการใน Excel</h1>
+      <p class="lede">อัปโหลดไฟล์ PDF ต้นฉบับและตาราง Excel ที่ระบุชื่อไฟล์กับจำนวนหน้า ระบบจะตัดแบ่งเป็นไฟล์ย่อยให้อัตโนมัติ</p>
+    </header>
+
+    <div class="card">
+      <div class="card-title"><span class="step-num">1</span><h2>เลือกไฟล์</h2></div>
+      <div class="card-sub">ไฟล์ Excel ต้องมีคอลัมน์ชื่อ <code>ชื่อไฟล์</code> และ <code>จำนวนหน้า</code> โดยเรียงลำดับแถวตามลำดับหน้าที่ต้องการตัดจาก PDF</div>
+
+      <div class="drop-row">
+        <div class="drop" id="dropPdf">
+          <input type="file" id="pdfInput" accept="application/pdf">
+          <div class="drop-label">ไฟล์ PDF ต้นฉบับ</div>
+          <div class="drop-hint">คลิกหรือวางไฟล์ .pdf ที่นี่</div>
+          <div class="drop-file" id="pdfFileName"></div>
+        </div>
+        <div class="drop" id="dropXlsx">
+          <input type="file" id="xlsxInput" accept=".xlsx,.xls">
+          <div class="drop-label">ไฟล์ Excel รายการ</div>
+          <div class="drop-hint">คลิกหรือวางไฟล์ .xlsx ที่นี่</div>
+          <div class="drop-file" id="xlsxFileName"></div>
+        </div>
+      </div>
+
+      <div class="field-row" id="sheetRow" style="display:none;">
+        <label class="field-label">เลือกชีตที่ต้องการอ่าน</label>
+        <select id="sheetSelect"></select>
+      </div>
+    </div>
+
+    <div class="card" id="checkCard" style="display:none;">
+      <div class="card-title"><span class="step-num">2</span><h2>ตรวจสอบข้อมูล</h2></div>
+      <div class="card-sub">เทียบจำนวนหน้าทั้งหมดใน PDF กับผลรวมจำนวนหน้าที่ระบุใน Excel ก่อนเริ่มตัดไฟล์</div>
+
+      <div class="summary-grid">
+        <div class="stat"><div class="stat-num" id="statRows">–</div><div class="stat-label">แถวข้อมูลใน Excel</div></div>
+        <div class="stat"><div class="stat-num" id="statPdfPages">–</div><div class="stat-label">จำนวนหน้าใน PDF</div></div>
+        <div class="stat"><div class="stat-num" id="statExcelPages">–</div><div class="stat-label">ผลรวมหน้าใน Excel</div></div>
+      </div>
+
+      <div id="matchBanner"></div>
+
+      <div class="actions">
+        <button class="btn teal" id="startBtn" disabled>เริ่มแยกไฟล์</button>
+      </div>
+    </div>
+
+    <div class="card" id="resultCard" style="display:none;">
+      <div class="card-title"><span class="step-num">3</span><h2>ผลลัพธ์</h2></div>
+      <div class="card-sub">สถานะการแยกไฟล์แต่ละรายการ พร้อมดาวน์โหลดเมื่อเสร็จ</div>
+
+      <div class="progress-outer"><div class="progress-inner" id="progressBar"></div></div>
+      <div class="progress-text" id="progressText"></div>
+
+      <table class="log" id="logTable" style="display:none;">
+        <thead><tr><th>เวลา</th><th>ชื่อไฟล์</th><th>ช่วงหน้า</th><th>สถานะ</th><th>หมายเหตุ</th></tr></thead>
+        <tbody id="logBody"></tbody>
+      </table>
+
+      <div class="actions" id="downloadActions" style="display:none;">
+        <button class="btn teal" id="downloadZipBtn">ดาวน์โหลดไฟล์ทั้งหมด (.zip)</button>
+        <button class="btn ghost" id="downloadLogBtn">ดาวน์โหลด log (.csv)</button>
+      </div>
+    </div>
+
+    <footer class="note">ไฟล์ PDF และ Excel ของคุณไม่ถูกส่งออกไปที่ใดเลย</footer>
+  </div>
+
+  <!-- ============ VIEW: MERGE ============ -->
+  <div data-view="merge">
+    <header class="page-head">
+      <div class="kicker"><a class="back-link" onclick="goTo('home')">‹ กลับ</a>เครื่องมือ PDF</div>
+      <h1>รวมไฟล์ PDF หลายไฟล์เป็นไฟล์เดียว</h1>
+      <p class="lede">เลือกไฟล์ PDF ที่ต้องการรวม จัดลำดับได้ตามต้องการ แล้วตั้งชื่อไฟล์ผลลัพธ์</p>
+    </header>
+
+    <div class="card">
+      <div class="card-title"><span class="step-num">1</span><h2>เลือกไฟล์และจัดลำดับ</h2></div>
+      <div class="card-sub">ลากไฟล์เพื่อสลับลำดับ หรือใช้ปุ่มลูกศรขึ้น/ลง — ไฟล์จะถูกรวมตามลำดับที่แสดงในรายการ</div>
+
+      <div class="drop" id="dropMerge">
+        <input type="file" id="mergeFileInput" accept="application/pdf" multiple>
+        <div class="drop-label">เลือกไฟล์ PDF</div>
+        <div class="drop-hint">คลิกหรือวางไฟล์ .pdf หลายไฟล์ที่นี่ (เลือกเพิ่มได้เรื่อยๆ)</div>
+      </div>
+
+      <ul class="filelist" id="mergeFileList">
+        <li class="empty-note" id="mergeEmptyNote">ยังไม่ได้เลือกไฟล์</li>
+      </ul>
+    </div>
+
+    <div class="card" id="nameCard" style="display:none;">
+      <div class="card-title"><span class="step-num">2</span><h2>ตั้งชื่อไฟล์และรวม</h2></div>
+      <div class="card-sub">ไม่ต้องใส่นามสกุล .pdf ระบบจะเติมให้อัตโนมัติ</div>
+
+      <div class="field-row">
+        <label class="field-label" for="mergedName">ชื่อไฟล์ผลลัพธ์</label>
+        <input type="text" id="mergedName" value="Merged">
+        <div class="field-hint" id="countHint"></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn teal" id="mergeBtn" disabled>รวมไฟล์</button>
+      </div>
+
+      <div id="mergeResultBanner"></div>
+    </div>
+
+    <footer class="note">ไฟล์ PDF ของคุณไม่ถูกส่งออกไปที่ใดเลย</footer>
+  </div>
+
+</div>
+
+<script>
+/* ================= view routing ================= */
+function goTo(view){
+  document.querySelectorAll('[data-view]').forEach(el=>el.classList.remove('active'));
+  document.querySelector('[data-view="'+view+'"]').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+const { PDFDocument } = PDFLib;
+
+/* ================= SPLIT TOOL ================= */
+(function(){
+  let pdfBytes = null, pdfDoc = null, pdfTotalPages = 0;
+  let workbook = null, excelRows = null, excelTotalPages = 0;
+
+  const pdfInput = document.getElementById('pdfInput');
+  const xlsxInput = document.getElementById('xlsxInput');
+  const dropPdf = document.getElementById('dropPdf');
+  const dropXlsx = document.getElementById('dropXlsx');
+  const pdfFileName = document.getElementById('pdfFileName');
+  const xlsxFileName = document.getElementById('xlsxFileName');
+  const sheetRow = document.getElementById('sheetRow');
+  const sheetSelect = document.getElementById('sheetSelect');
+  const checkCard = document.getElementById('checkCard');
+  const statRows = document.getElementById('statRows');
+  const statPdfPages = document.getElementById('statPdfPages');
+  const statExcelPages = document.getElementById('statExcelPages');
+  const matchBanner = document.getElementById('matchBanner');
+  const startBtn = document.getElementById('startBtn');
+  const resultCard = document.getElementById('resultCard');
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  const logTable = document.getElementById('logTable');
+  const logBody = document.getElementById('logBody');
+  const downloadActions = document.getElementById('downloadActions');
+  const downloadZipBtn = document.getElementById('downloadZipBtn');
+  const downloadLogBtn = document.getElementById('downloadLogBtn');
+
+  let logRows = [], outputFiles = [];
+
+  [dropPdf, dropXlsx].forEach(el=>{
+    el.addEventListener('dragover', e=>{e.preventDefault(); el.classList.add('drag');});
+    el.addEventListener('dragleave', ()=> el.classList.remove('drag'));
+    el.addEventListener('drop', ()=> el.classList.remove('drag'));
+  });
+
+  pdfInput.addEventListener('change', async (e)=>{
+    const f = e.target.files[0];
+    if(!f) return;
+    pdfFileName.textContent = f.name;
+    pdfBytes = await f.arrayBuffer();
+    try{
+      pdfDoc = await PDFDocument.load(pdfBytes);
+      pdfTotalPages = pdfDoc.getPageCount();
+    }catch(err){
+      pdfDoc = null; pdfTotalPages = 0;
+      pdfFileName.textContent = f.name + ' — ไม่สามารถอ่านไฟล์นี้ได้';
+    }
+    tryReveal();
+  });
+
+  xlsxInput.addEventListener('change', (e)=>{
+    const f = e.target.files[0];
+    if(!f) return;
+    xlsxFileName.textContent = f.name;
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      const data = new Uint8Array(ev.target.result);
+      workbook = XLSX.read(data, {type:'array'});
+      sheetSelect.innerHTML = '';
+      workbook.SheetNames.forEach(name=>{
+        const opt = document.createElement('option');
+        opt.value = name; opt.textContent = name;
+        sheetSelect.appendChild(opt);
+      });
+      sheetRow.style.display = 'block';
+      parseSheet(sheetSelect.value);
+      tryReveal();
+    };
+    reader.readAsArrayBuffer(f);
+  });
+
+  sheetSelect.addEventListener('change', ()=>{ parseSheet(sheetSelect.value); tryReveal(); });
+
+  function parseSheet(sheetName){
+    const ws = workbook.Sheets[sheetName];
+    const json = XLSX.utils.sheet_to_json(ws, {defval:''});
+    excelRows = []; excelTotalPages = 0;
+    json.forEach(row=>{
+      const fileName = row['ชื่อไฟล์'];
+      let pageCount = parseInt(row['จำนวนหน้า'], 10);
+      if(fileName && !isNaN(pageCount) && pageCount > 0){
+        excelRows.push({fileName: String(fileName).trim(), pageCount});
+        excelTotalPages += pageCount;
+      }
+    });
+  }
+
+  function tryReveal(){
+    if(pdfDoc && excelRows && excelRows.length > 0){
+      checkCard.style.display = 'block';
+      statRows.textContent = excelRows.length;
+      statPdfPages.textContent = pdfTotalPages;
+      statExcelPages.textContent = excelTotalPages;
+      renderMatchBanner();
+    }
+  }
+
+  function renderMatchBanner(){
+    matchBanner.innerHTML = '';
+    if(excelTotalPages === pdfTotalPages){
+      const div = document.createElement('div');
+      div.className = 'banner ok';
+      div.innerHTML = '<div><b>จำนวนหน้าตรงกัน</b> — PDF มี ' + pdfTotalPages + ' หน้า ตรงกับผลรวมใน Excel พร้อมเริ่มแยกไฟล์</div>';
+      matchBanner.appendChild(div);
+      startBtn.disabled = false;
+    } else {
+      const div = document.createElement('div');
+      div.className = 'banner warn';
+      div.innerHTML = '<div><b>จำนวนหน้าไม่ตรงกัน</b> — PDF มี ' + pdfTotalPages + ' หน้า แต่ผลรวมใน Excel เท่ากับ ' + excelTotalPages + ' หน้า หากดำเนินการต่อ แถวสุดท้ายอาจตัดหน้าเกินหรือไม่ครบ<div class="checkline"><label><input type="checkbox" id="ackCheck"> ฉันเข้าใจและต้องการดำเนินการต่อ</label></div></div>';
+      matchBanner.appendChild(div);
+      startBtn.disabled = true;
+      document.getElementById('ackCheck').addEventListener('change', (e)=>{ startBtn.disabled = !e.target.checked; });
+    }
+  }
+
+  startBtn.addEventListener('click', runSplit);
+
+  function nowTimeText(){
+    const d = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  }
+
+  async function runSplit(){
+    startBtn.disabled = true;
+    resultCard.style.display = 'block';
+    logTable.style.display = 'table';
+    logBody.innerHTML = '';
+    logRows = []; outputFiles = [];
+    downloadActions.style.display = 'none';
+
+    let startPage = 1;
+    const total = excelRows.length;
+
+    for(let i=0; i<total; i++){
+      const row = excelRows[i];
+      const count = row.pageCount;
+      const endPage = startPage + count - 1;
+      const rangeLabel = (startPage === endPage) ? String(startPage) : (startPage + '-' + endPage);
+      let status = 'สำเร็จ', note = '-';
+
+      try{
+        const from = startPage - 1, to = endPage - 1;
+        if(from < 0 || to >= pdfTotalPages || from > to){
+          throw new Error('ช่วงหน้าเกินขอบเขตของ PDF');
+        }
+        const indices = [];
+        for(let p=from; p<=to; p++) indices.push(p);
+        const newDoc = await PDFDocument.create();
+        const copiedPages = await newDoc.copyPages(pdfDoc, indices);
+        copiedPages.forEach(pg => newDoc.addPage(pg));
+        const bytes = await newDoc.save();
+        outputFiles.push({name: row.fileName + '.pdf', bytes});
+      }catch(err){
+        status = 'ล้มเหลว';
+        note = 'ตรวจสอบข้อมูลในแถวที่ ' + (i+2) + ' (' + err.message + ')';
+      }
+
+      const entry = {time: nowTimeText(), name: row.fileName, range: rangeLabel, status, note};
+      logRows.push(entry);
+      appendLogRow(entry);
+
+      startPage = endPage + 1;
+      const pct = Math.round(((i+1)/total)*100);
+      progressBar.style.width = pct + '%';
+      progressText.textContent = 'กำลังแยกไฟล์ ' + (i+1) + ' / ' + total + ' — ' + row.fileName + '.pdf';
+      await new Promise(r=>setTimeout(r, 0));
+    }
+
+    const successCount = logRows.filter(r=>r.status==='สำเร็จ').length;
+    progressText.textContent = 'เสร็จสิ้น — สำเร็จ ' + successCount + ' จาก ' + total + ' ไฟล์';
+    downloadActions.style.display = 'flex';
+    startBtn.disabled = false;
+  }
+
+  function appendLogRow(entry){
+    const tr = document.createElement('tr');
+    const pillClass = entry.status === 'สำเร็จ' ? 'ok' : 'fail';
+    tr.innerHTML = '<td>'+entry.time+'</td><td>'+escapeHtml(entry.name)+'</td><td>'+entry.range+'</td>'
+      + '<td><span class="pill '+pillClass+'">'+entry.status+'</span></td><td>'+escapeHtml(entry.note)+'</td>';
+    logBody.appendChild(tr);
+  }
+
+  downloadZipBtn.addEventListener('click', async ()=>{
+    const zip = new JSZip();
+    outputFiles.forEach(f => zip.file(f.name, f.bytes));
+    const content = await zip.generateAsync({type:'blob'});
+    triggerDownload(content, 'split_pdfs.zip');
+  });
+
+  downloadLogBtn.addEventListener('click', ()=>{
+    let csv = 'เวลา,ชื่อไฟล์,ช่วงหน้า,สถานะ,หมายเหตุ\n';
+    logRows.forEach(r=>{
+      csv += [r.time, r.name, r.range, r.status, r.note].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',') + '\n';
+    });
+    const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+    triggerDownload(blob, 'log_' + Date.now() + '.csv');
+  });
+})();
+
+/* ================= MERGE TOOL ================= */
+(function(){
+  let files = [];
+  let idCounter = 0;
+  let dragSrcId = null;
+
+  const fileInput = document.getElementById('mergeFileInput');
+  const drop = document.getElementById('dropMerge');
+  const fileList = document.getElementById('mergeFileList');
+  const emptyNote = document.getElementById('mergeEmptyNote');
+  const nameCard = document.getElementById('nameCard');
+  const mergedName = document.getElementById('mergedName');
+  const countHint = document.getElementById('countHint');
+  const mergeBtn = document.getElementById('mergeBtn');
+  const resultBanner = document.getElementById('mergeResultBanner');
+
+  drop.addEventListener('dragover', e=>{e.preventDefault(); drop.classList.add('drag');});
+  drop.addEventListener('dragleave', ()=> drop.classList.remove('drag'));
+  drop.addEventListener('drop', e=>{
+    e.preventDefault();
+    drop.classList.remove('drag');
+    addFiles(Array.from(e.dataTransfer.files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')));
+  });
+
+  fileInput.addEventListener('change', (e)=>{
+    addFiles(Array.from(e.target.files));
+    fileInput.value = '';
+  });
+
+  function addFiles(newFiles){
+    newFiles.forEach(f=> files.push({id: idCounter++, file: f}));
+    renderList();
+  }
+  function removeFile(id){ files = files.filter(x => x.id !== id); renderList(); }
+  function moveFile(id, dir){
+    const idx = files.findIndex(x => x.id === id);
+    const target = idx + dir;
+    if(target < 0 || target >= files.length) return;
+    const tmp = files[idx]; files[idx] = files[target]; files[target] = tmp;
+    renderList();
+  }
+  function formatSize(bytes){
+    if(bytes < 1024) return bytes + ' B';
+    if(bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+    return (bytes/1024/1024).toFixed(2) + ' MB';
+  }
+
+  function renderList(){
+    fileList.innerHTML = '';
+    if(files.length === 0){
+      fileList.appendChild(emptyNote);
+      nameCard.style.display = 'none';
+      return;
+    }
+    files.forEach((entry, i)=>{
+      const li = document.createElement('li');
+      li.className = 'fileitem';
+      li.draggable = true;
+      li.dataset.id = entry.id;
+      li.innerHTML =
+        '<span class="handle">⠿</span>' +
+        '<span class="order-num">' + (i+1) + '</span>' +
+        '<div class="file-meta">' +
+          '<div class="file-name">' + escapeHtml(entry.file.name) + '</div>' +
+          '<div class="file-size">' + formatSize(entry.file.size) + '</div>' +
+        '</div>' +
+        '<div class="file-controls">' +
+          '<button class="icon-btn up" title="เลื่อนขึ้น">↑</button>' +
+          '<button class="icon-btn down" title="เลื่อนลง">↓</button>' +
+          '<button class="icon-btn remove" title="ลบ">✕</button>' +
+        '</div>';
+      li.querySelector('.up').addEventListener('click', ()=> moveFile(entry.id, -1));
+      li.querySelector('.down').addEventListener('click', ()=> moveFile(entry.id, 1));
+      li.querySelector('.remove').addEventListener('click', ()=> removeFile(entry.id));
+      li.addEventListener('dragstart', ()=>{ dragSrcId = entry.id; li.classList.add('dragging'); });
+      li.addEventListener('dragend', ()=>{
+        li.classList.remove('dragging');
+        document.querySelectorAll('#mergeFileList .fileitem').forEach(el=>el.classList.remove('over'));
+      });
+      li.addEventListener('dragover', (e)=>{ e.preventDefault(); li.classList.add('over'); });
+      li.addEventListener('dragleave', ()=> li.classList.remove('over'));
+      li.addEventListener('drop', (e)=>{
+        e.preventDefault();
+        li.classList.remove('over');
+        const targetId = entry.id;
+        if(dragSrcId === null || dragSrcId === targetId) return;
+        const srcIdx = files.findIndex(x=>x.id===dragSrcId);
+        const tgtIdx = files.findIndex(x=>x.id===targetId);
+        const [moved] = files.splice(srcIdx, 1);
+        files.splice(tgtIdx, 0, moved);
+        renderList();
+      });
+      fileList.appendChild(li);
+    });
+
+    nameCard.style.display = 'block';
+    countHint.textContent = 'จะรวมทั้งหมด ' + files.length + ' ไฟล์ ตามลำดับด้านบน';
+    mergeBtn.disabled = files.length < 2;
+    resultBanner.innerHTML = '';
+  }
+
+  mergeBtn.addEventListener('click', async ()=>{
+    mergeBtn.disabled = true;
+    resultBanner.innerHTML = '';
+    try{
+      const merged = await PDFDocument.create();
+      for(const entry of files){
+        const bytes = await entry.file.arrayBuffer();
+        const src = await PDFDocument.load(bytes);
+        const pages = await merged.copyPages(src, src.getPageIndices());
+        pages.forEach(p => merged.addPage(p));
+      }
+      const outBytes = await merged.save();
+      const blob = new Blob([outBytes], {type:'application/pdf'});
+      let name = (mergedName.value || 'Merged').trim();
+      if(!name) name = 'Merged';
+      triggerDownload(blob, name + '.pdf');
+
+      const div = document.createElement('div');
+      div.className = 'banner ok';
+      div.innerHTML = '<b>เสร็จเรียบร้อยแล้ว</b> — รวม ' + files.length + ' ไฟล์เป็น "' + escapeHtml(name) + '.pdf" และเริ่มดาวน์โหลดให้แล้ว';
+      resultBanner.appendChild(div);
+    }catch(err){
+      const div = document.createElement('div');
+      div.className = 'banner err';
+      div.innerHTML = '<b>เกิดข้อผิดพลาด</b> — ไม่สามารถรวมไฟล์ได้ (' + escapeHtml(err.message) + ') กรุณาตรวจสอบว่าไฟล์ทั้งหมดเป็น PDF ที่เปิดได้ปกติ';
+      resultBanner.appendChild(div);
+    }
+    mergeBtn.disabled = files.length < 2;
+  });
+})();
+
+/* ================= shared helpers ================= */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function triggerDownload(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
