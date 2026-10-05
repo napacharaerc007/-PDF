@@ -220,6 +220,27 @@
     color:var(--ink-soft);
     margin-top:5px;
   }
+  .example-box{
+    margin-top:18px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:#FBFAF6;
+    padding:14px 16px;
+  }
+  .example-img{
+    display:block;
+    max-width:260px;
+    width:100%;
+    border:1px solid var(--line-strong);
+    border-radius:var(--radius);
+    background:#fff;
+  }
+  .example-cap{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-top:10px;
+    line-height:1.55;
+  }
   .btn{
     font-family:'Sarabun',sans-serif;
     font-weight:600;
@@ -359,7 +380,12 @@
 
     <div class="card">
       <div class="card-title"><span class="step-num">1</span><h2>เลือกไฟล์</h2></div>
-      <div class="card-sub">ไฟล์ Excel ต้องมีคอลัมน์ชื่อ <code>ชื่อไฟล์</code> และ <code>จำนวนหน้า</code> โดยเรียงลำดับแถวตามลำดับหน้าที่ต้องการตัดจาก PDF</div>
+      <div class="card-sub">ไฟล์ Excel ต้องมีคอลัมน์ชื่อ <code>ชื่อไฟล์</code> และ <code>จำนวนหน้า</code> โดยเรียงลำดับแถวตามลำดับหน้าที่ต้องการตัดจาก PDF (เพิ่มคอลัมน์ <code>ชื่อเรื่อง</code> ได้ถ้าต้องการตั้งชื่อไฟล์ให้มีชื่อเรื่องต่อท้าย)</div>
+
+      <div class="example-box">
+        <img class="example-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQEAAAD9CAYAAAC8y8IrAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAB4jSURBVHhe7Z07byJbuobfPr/Af2A0khu6JcuRA4LypKYFTroDO20ivJ1sV+IAqUNLBE7KnbBNRIdjgnZiUJvYBARIW0JIbWg0o5FOMMGR/8BMnXUrzNXcXWvV+h5pdVMXF3V961sXvvfN//7fkw+C2Ahv1P/EKix6FvkDvcjfvHl60lcEtra2wPZPTRGz+Ne//oW//OUvaorQHV2u1/+o/7Xkzz//VJ+Iefjvf/+rPhEmoMv10loE6KZeDDpfZkEiMAd0Uy8GnS+zIBGYwL///W/1SUI39WLQ+TILEoERuAA8Pj6qKQnd1ItB58ssSAQGmCQAHLqpF4POl1mQCCimCQCHburFoPNlFiQCjJcEgKPfTd1DIbklxi9suTU1Tx8iIwK9ApL8HI+WZBJuradWMh/rRWCWAHD+85//qE+aUPuKXEN9Lt1BNxnQ7nytSiKBTCajSgJoNFA62kOyEA0h0OV6hSIC8wgAR7c3W+2uxP7lNya7IVHCnWYqEJlIIGDnHJ7nqXKPp2aenX2mBbmv2gnwMlgbCcwrABy9buoahAZk2I35+ydxM5Y0U4HIicAo2x/wiZ94tNGNQDBgpQgsIgAcrW7q2h179zMNODx4vhk1qxJEXgT67CC2rT4ajHUisKgAcHS6qWVVIAOuAUwF8EGqAC41qp9GXgR6P/Cdt8kk3uOtnGM0VonAMgLA0eemDqoChxAawNg+PWeSwOqn339AFxmInAi0u6jVarIUXCT3cmgkMsj/ccpk2HysEYFlBYCjy0nqFS6fqwJ9DnAoVQA/NFGByIlAI4ejoyNZciWIjplGGz91OeErYoUIrCIAHD1OUg8/RAyawXsWEfTfTKzwngJ2V+K7Jjdl5EQgUxb5JPqlWUY+0UApF41uwsiLwKoCwNHiJAX1UBYL5IK3UlBKctCALlWCyInAKNsHOL0vy2pYBLoJIy0C6xAAjg4nqffjO3vXJ5BvDryRBkpZ3pH4qsEdGXkRiBiRFYF1CQAn/BFVQVVgepfUgWgY0GPMQORGDE5CddVGoYcgkiMG1ykAnNCVMhgmPNArMMbBoQhPdRgzELlIoH0J13WfC//dxhGXABaZRaCHIHKRwLoFgBP2SZJjA0Z7BUZRvQTs/RR2MBA5EeC/FSiVnksjgUQmj3LzHqc0WGhtrCXb8DoF4G9/+5v6BNzd3eHw8FBNEbOg82UWulyvlSOBTUQAAZF7s20YOl9mocv1WkkENikAHLqpF4POl1nocr20Nh/5/v07Pn36pKaIWdD5MgtdrtfauwjXCb3ZFoPOl1nocr1IBCIEnS+z0OV6cd9Cv9VqiR3yfX/i/8sum2edl5bx/wmC2Cxatwn8/e9/RzabVVPL0MXVfhw3xx08nMXUvOjyz3/+E3/961/VFKE7ulwvrasDBEFsHhIBgrCcaIpA9QRv3pygqiYJgphOdESgW8XJ/j57+N/gTbrIZrTwWO3IZStQPXmD/ZNATngbA9s++47necvRvZL7un/VVXOWoHuFk6sq2yuCWJ5oiAB7GPbjabSOv6Dj+6JXoVPZhZtOw62rdVagXryAeFarl/3t1YtprKgDy8HE7urqhAkeE6PPbewcphD9Js/wqTLR3j+56guuEPH952mTiYAIsLfzZxfweA/A8wMRS12j4zlqanlS1xVkUcfNXRfVWxZhOB4qarutx1e+BVg1Z//zLdBuAccd+A/XWLrTg0cRIqrZD0fMTIKdq4v2F3zbucElP1dsWtxy384iIcDmi0D3Djfs7Vx347IqMFDi6wgDkMLHLNt++w6P7Nlzjg8RV0temy7fgeNznH3cRbG9WlWne3fDIicmJCxiKt6SCrxI7BDHrTS7n3h6GRZ1fr5hGvywvABrxvpEoFeQSR+23NdNrhE7w4OqAkwsFfYe5wKxwusuvsPe/EVXVAV234V35WNnX7B78xn7Fy1kP6bU3OWInX3DF1zi5HYHlfPVthV9Yjj7koXDboM2DvHtIToCwFmLCPQKSWzt5aDybmqFCOEZqzw0scNjiAoAqwqE+7ykcM1uwAdWrlfejxhSZ9e4vj5DKkI39MZg1Ut53mORa4NZUQSkVfderoFEnqeDVrNfBVZH5401/fCfN9wMtpTL5byjwMlWhh6aLm9cO2Hrq5b+57+/QnVSNT+INh5m1wGrbLvB9k6GNsZ7FvZlA+OL8P3m9fXBY2OFTS/TEzD5WN+w6ZOJx9qtyu8eXXd8v9l+Dh2rmt2nihOxbLirdur2x3Zmye2rXhfxNxNOdpe3q6jlw4vXfDwTzq228GHDS5dm3k8g4eebfLrpMxHwgYxfnrTuEuX6+ppF9JNhUT4f7iwKe8j9TiUrp9lnTsdz2LTjZ72OmO4TrDe1OP7on4wit82+d+K2sz7fA7l/A9vqeD6LJny1e1O3MXhcE4sjtz+Jf/zjH+pTQMXPTtpGv7DzM7ixGedmfN0pxyoIvntgfze9fXGO5XrB+R3apvgbtR2+fcfz+5vc9PFMYPx6hcNqkcD2Ke6fwsj3VsVt0QG7SLLOX7xFJ/UR7CKxuvutUGpe5/WcOqvKfx5TZcfJwqt00OF/H7QddCrIipi/Dvfzurp+ZK8ChzfE8WbK2Y1w7DbOeqh02P4F+8ZKp+LJKkm9iPQi7RusIpv1KmPHKjs42Pm5GD7W4LvH12X7PrLuMHXM01Y5tn2/s9btA7vqf8nQ+e4+oqU+CuptTN/kkscz9/nSiElv4OXKa0YCUtGF0vYVfVypp76xpxJsY/QtMMxL261k5bKgyHU6PrsxfMfhy+T+Lb5vDBVNDL2NBljszTLfsUomvAX5GR851vG37vR9HWZ92w/Oa7+MvI4HI63hc7/p4xknGpFAaKRw7u2ilWZ1sHQL3rdD4OoCogkw+5EtnYEYXajqcLxurGYDcfCOgFVIXT+INwK7GdUchujGdHD87QuLVop4MRjo99+r+uVgO0fsnXrPtbD6EIVFjjVYd/B7Y/1jZQ/Wiqxv+7Ez+Tf8aR/npZO26ePRF0NFgF/sa9U1+IAz3OGzGBPAqggzm+/54KI0exQ9EW5Xdou42HArjqgKOMc4jMkxB9OrBEyc4i6KA8Mb+MjEeH9k2rIixY45aPQaa7SaN8w2n+pJHGlRjeQDwNiRu5dDjXy2YqwIDBLUt5H9Mrv/Vg0uej3ucMkEig8y4ruWkirA5k6geiujGUcKFAtR2VuJPfV1F59XESo+3Ll1zLbJ6t/sG9z4cAu3DfBeAykAvI/frDf1pomECAQ4OwuM5WMPVpy9GdOtLL5scuTHzQ177FhV4FB9h2jALPLZ09l9p7oiZYjKw9P6hAbO5eGNixNlKJqIYb5MiL1vkRrksy4iJQILEbxtH65ntyFMIRiq/NIvCut1FnaIqoCaEQxD5vOnwaoAMnSX1YDg9wvu50u05RqLkTqHt3vDRC8Ol8UC4rcPagTk+umqvnhe5eKw6ta089Nv/2D7Nfe+LLB9waP4bUmdXe9vSynAot9nHvaKwDrIVljIXsHujF8UBlWBAFEleAkhUCx03w2qASlci3CgONReMD8xnKlGLz7gKSW6T9WidfLIG1zjiKeLonrmeB34HY89N7Lbdhj5wy/x+wV2DmecEclC21cIsWPVgGV+7LPM9xnIiiLQQ61vGPlV+fi3WR1YzSvUNuzbz0fhPf9QaPRHRC/+gEhVBwbXn/eN1B9GPBcDVYGAYEzDKPGd6dvlb/O1PbgxHB6vXwWKLn9byjEY/X3ttGV7zTwMRUzjLLv9ZasBKx+PKUzqn5+/lP3MQL/qeFltzMBLIwYlsv998nc/l6H+4H5f+0tldt85H6EYbIePWByl3189OCqtz/N+D/dVMwa2O/a3/X2fvH/LjROYPbLteX8nfy8LUsb3t38cI6MSB2HHkw2uHx8JOWHbnKW2z8ePiOWT+uo3dDx9Xt5+gC7jBCKebdguKNuwWVC2YYIgtIBEgCAsh0SAICyHRIAgLIdEgCAs50273fZnGYMuu2yedV5axv//8OGD2lWCIDYBdRFGCOoiNAvqIiQIQgtIBAjCckgECMJySAQIwnJIBAjCckgECMJySAQIwnJWFoFerwY3mcTWFjcj5SX5CslEXpm+ddUb7L+U6K+fLmuORJ5zrSutsQbtyKbZhxG6MH7NhIWcxqmIVhIBbkS6t3ckjEgTmQwyGW5G2EApd4Q991W9iTdIF1cXMr3USwgPvJF04dOYb12eNYmnyK6jzl2Esllk2f917kAUn8fTkHh9qjh5w68Z+8idiSoVVjxkd4HWo8YqMJjJZ9HSzCf8RL7sNwfnC39CnlUl8ChcvszOLLR5ZIYgx/c8malmLBNQP4sMX1ZRn6c5z8y/bj8z0Ugam1HPxUF0yVRjJ/NlExokEg5E26f3uD89wJAV4fYHfBLuxA38/CXmGExVeAYIP4N3atYoyl2IXXg8nM1IeT73ul3cCXMEtu6ImUosyDUYsWSXxqP8LExMa77BhsEE3r9VHw2leiITTVYGfc1HEbbl3NBCTb/E3Ot20BYaMCnxZgzvhBcZGWfohDTAmZBU1gA2IAK/8FNkHd5B7NXditdI9woXrG7neOdL+xIsTeCe2zchGSYu7HPssQ8zgY5QbabOHd7gqyzfRNnHydWAn6SGrF0EeoVLlPiHzCEOxBwTkTnxlzesIOyii0eh2kW4aRet3WN4QaOgsMdPI65x98B6RaBXwG85HgZkUPbMlQDh3SeaApYwrCAsJivbe67PcJZKIZU6w/WD8izQuA1njSJQg7uXQwMJ5JuewVFAFSe8jydbwUtNAQQxiXdT23BmWNKHyJpEoIdC8khUAzLle5wa3BbQvbpglwtwWrc4OTl5Lhci3kP95lJMs2re5oi947VL3rk8sS4p658OFvFfJTaJ2Y21axABLgB74LWATPkJJtcCBuGDcorFgRIYiKr5Nxu92so6u97GeNtfFbfCGXN3wluHCIvpjbVBe4G+or2iCAwKQDMSAhA7U8ado4UbgjKEKSWbfthog2HgFVjExcjQwCBSQfbj6/daEFOJyVAAxQvpJN1HtS/N8lkMk5VyDNbcLRzxOkAig8yOnDfE+0N4p8srg1Y5BqsneJMuChEYFgA+VvwSt2qqxaIE3l/sZHdlSL/zEednKdXAuMi6fAiqssN2smLoKfsDNdQ4i4o/bqlOOQbDRA7zloa2fJg3u2Ctloog+QCx8fEh2lyv0aG685emn0/IIbBTSyI/PKR4waLDsOE+arju+LDhZ2PPyWVwWPAi6zI6Fd/LquHDoji+k51kcCqhYcNh02G3CbtGA9eUX69pRqtkSDoHlG14MSgSMAvKNkwQhBaQCBCE5ZAIEITlkAgQhOWQCBCE5ZAhKUFYDnURRgjqIjQL6iIkCEILSAQIwnJIBAjCckgECMJySAQIwnJIBAjCckgECMJyVhYBMiQdYO2GpIpF1iVCgCcUkffH9KKvf+RqIlBzyZBUsX5DUski6xLh8e44K01jJxSeKE7nnJAriUCv20YiX0bz6R73ngfPu8dTMw9hRVi6g04y0K2OOsNIm++rGT7f3avPcLl/oDdt5KJ8C8TdOhyvInPMT2VT6xLhEkPq7BrX1xPKR55+lKFxTsiVROBlQ9I2urrUCVg4H0/zt+nw65RnFHbT8Re848MyJGUssi6hLVWRGppdx3N908Ja0zDocL/4jswULItyhmGMZYhVhGdIylhkXUJPlJ+lzpmGOesXgdpXkYIcmXN9TEhS18IaKhUbvBIxnD1U2CPOmJTfP0xDUiISVC9dURXQ3c5udRHo1VCr8VJAwU1ii+cgT5jiRahMPsacY1h9nAxJiZUITGKy+Kj5W2RlEej9uMTR0RErOeR4NwEjsfOe+5KYCxmSEivSt7MzIJJcWQR44+DT05MqTTTLGaCUw9FeEgUjhYAMSYlVUQ3KLAr4YkAkueY2gW1sH3i450KABnJfzRsroIUhKWE21VujrOLW3zA4SLurZ62gPwIvsI0aJ1xDUsJcumJwGXuNaN0tOMgKIsDNSFnIXxt9zHuo3XGDQsZObHgMgRbIRr/WMe8uVL0DA+hhSEoYiwEGpKOsGAmwkP9oT/5ewHVFSW7tSZNSmNJDwFjpgnGT0aDacIkbETC0cBHMY/WG55hhU+sSuiAHBxnWqMwTjS5fmn45n/ETg8akiYSfyZdXMiINyvWmDEk7np911P462amGkUO8uiHpgualDDIkDRl2Xzn82jjTTWMHIUPSOaBsw4tB2YbNgrINEwShBSQCBGE5JAIEYTkkAgRhOSQCBGE5ZEhKEJZDXYQRgroIzYK6CAmC0AISAYKwHBIBgrAcEgGCsBwSAYKwHBIBgrAcEgGCsJz1ikCNJxWRxqRJM7OMTiYkQ9JutzpinbZPyUS0RFrGPV+nSSWqhqRD9FC4LEEmHY8SMmecyjA4lXWbjPJ14vG0WMcRxpbcIKGOoptGfLpvGhES1hqSDtIr/IZcI4F8nmca1g/zDEl5PsMKOv4DHoS55QP8jidvqOKFtm8VO7HYkPSZGr5y7zFuPaaj2hloSMoTnj6cpYbz1MUOcSxUoI72mG8aoSPWGJLW3COUNE8sapwh6Ys42CGjYv2xxpC0V8Altx/M/w5tJSAyhqQdtEUwo2/9knjGEkPSHgq/5dBI5PGHNhbEi2CWIWngjmSKs43d2GJIqmzIM+enGpqMrICOhqQsMvksXC1mVE8ILbDEkLQGl7uMZMowxWNkPnQ0JGX7FOehJW9UvKYoQHssMSTtFS7BjYYS7bu++5Aol22xvPH9q5guGOZJqp8hKe9W5A2UXJfW0ahIbBzDDEmXdiBq5hMDbjjTSyLfnPj385Tr13AgEsXxA2OhjucMzJ9exp2IOB3fE9sddwcaZ551g3XgZ2dvkByItCC4Zs/31DR0uV5LRwLbp/dcQMaLsCXnvQVNMX2vXYOhbPTT35CURwDSNTlb6WhUNSFexD5D0oigoSFp9UTZpjtMfG5lFWSovF59hFgACw1JJ5RyRoSvq1QDgvIq1QEtDUmfqwFTywTTS6oOhAwZkq4fyja8GJRt2Cwo2zBBEFpAIkAQlkMiQBCWQyJAEJZDIkAQlkOGpARhOdRFGCGoi9AsqIuQIAgtIBEgCMshESAIyyERIAjLIREgCMshESAIyyERIAjLWU0EeoW+Ael4cWFYesHpkCEpMTc8ccx+/34RhV1Dne0j1xIJJBIZZDKj5RBv1XKz6YZiSMqFhwxJTYOJ9ps4eLJqcMerSoUVD9ldoPWo8TUbzOSzcGnm/QTgZ8oTlq2hbCyz0ALIxKOO73nTMgs9ZwFyvMqM5KHzr8u/l68z9G1B5popf0OZhcJk/gSjAcYnGrUDXQ1JRx2TiNAR15ZJgPfNuLTwJAIvoK8hKaEb3bsbYQ5zbEqK4QHWIgLtbg21miq9npprODoakgbprHlkQkKiFR3hFMsq/x3e4GtWY+5aRKCRO8LRkSp7e9jaSsItmCwGmhiSdquoVnm5wtUJu7F4i5NDXoT60cWjMKgqwk27aO0ewwsaBR39G3NXE4HtU9yPmI80y3kk0EAptwfX1D5CTQxJu3cXSKfTrLhwVVeCs7vD7zlCS7Kyvef6DGepFFKpM1w/dODxdpzi7exu45BYe5vA9gETBuVCVLoswLx4QB9D0mE3pA463AWp6CId38dLwxWI8Hg39taI4R2rJfAo4VZTFdhMw+Db9ywaMBP9DEkDYoilrvEg7NDqcC817ne2juBBN7PXZjMiEAHq9SKKxYFSl+E41PybsK9265FqBRoR35GDudodOf1M0F7gYGdGD3JYbEAEeij8lkODfUp8+gDd7EhnoYchKTcjZSF/dfQx7/a97rD7LtT2CmKYmAwFULy4GhZnAwxKV8gxWIObPEKbBf47OztqXhulEn/8GYk8mvenK4mAVjkGqyeidZ6LwLAA8LHil7hVUy0WJfD+Yie7yzuMgJ2POO8P+pl33WdHYv4GyfJxpwy5PieLin891nVJOQbDZMI1a7VUBMkHiI2PD9HmenERWLY0y3k/k0iIYbD9wqYz5dXNSHnRYdhwn1c1JOV0/IqX9R01zFgUx/Gzo0OJB6Bhw2HDrlnWUUO7ZXGy3lTDWzIknQPKNrwYFAmYBWUbJghCC0gECMJySAQIwnJIBAjCckgECMJyyJCUICyHuggjBHURmgV1ERIEoQUkAgRhOSQCBGE5JAIEYTkkAgRhOSQCBGE5JAIEYTlrEoEeam5y2Jw0mTQ32/AoIRmSDjHvPhAhY6UhaQ3u1h6OSuxjJo9yucxKHpkdaUpiPiEZkg4x3z4QYWOjIelT088neAaVhJ9vTlq+WrHZkHSQ2fsgocxCYWKrIWnvB743eDrBP3BqWkbRuQjPkPSZOfaBCB9bDUl7P76jgQQ+fYikArC6XfiGpHPtAxE61hqS/vrJMwuzyv+vAtxk8rlRUHgR1gx0HxpAB0NSHU1RiYlYakjaQ7fN/y8hd5RDe+cT8kGjYIJ7ER5hz9juga4GhqQ67AMxHzYbkgoyyDefcO+d4vTgAAcHp/Dum8hzH7LSHYyUAR0MSTUxRSUWwWJD0thYk8A2YsKPpIQ741RAB0NSfUxRicWwzJA0eNDb6Bpd+R9GB0NSfU1RiclYbEj69j2P+Rv4+UtOPxO0FyTw/q2YYRw6GJJqb4pK9LHWkHRbhgIoXRaGewJqX5GTjqQwrfdQB0NSPUxRiUUw2ZB0tTaBg99lA2Ajhz3eLei6sqtQjCFOIP/HaoakZsDHigch+6UYMMLDwotg3lD30CLrEkaROpcNgHUXcd4tyK8n7yoUY4gdeN80buCdNFx3sdL0y5mEz7RADGnlJZHJ++U1DCO225B0AlP3QULDhsOGDEnXDmUbXgzKNmwWlG2YIAgtIBEgCMshESAIyyERIAjLIREgCMshQ1KCsBzqIowQ1EVoFtRFSBCEFpAIEITlkAgQhOWQCBCE5ZAIEITlkAgQhOWQCBCE5awgAj0UkgMGpBNLEoUo5B8Mw5CULR8ytRwqc5qYEiFgmSFp7FMGmczkwhMOcWOS8UzEphGuIanjZMWAqeHyEZqmq7McKw1Jp5RyRmZWyZQnL5+zWG1I2vFEhprsLLfSASizUJjYakg6hdqdyjH4+4GcYSw6GJISRmCrIelEegVcCg0wL9PwKDoYkhJmYK0h6SRqX3Pg2cYz54ZnGtbEDJTXJatVVbqUi1hXLDUknUQNoiaADA6NrgnoYwZad9NIp1WJx9VNRWKgF9Ybkj7TK1xC1ATyv8NoDdDBDFRUHYbNRzrspnJY0Fl041p3OdmLxYakkhq+CtuhDM5PTa4I6GsGGmM31YNyIRpzuiG0wDJD0hFqdyIKQObQ6ChAezPQ+A6LBgi9sNiQ9JkeCrJLIALdghIyAyUWwVpD0j4GG5COorcZqGqwZJ+c40N9ve0sxGRD0rXkGKy5W+AepJnyE7w1BgJa5RisnghzSS4CwwLAx4pf4lZNtViUwPuLnewu7zACdj7i/CylHth5163iZD/NgksHu7vy5uKhZjEYZ+x46DyMN1pSjsEwYQK9H5cPPLtuWTFWmF0zEUHyAWLj40O0uV6jQ3UXLs28NCNN5P3mpOUrFJsNSTsVz886fMjywHI2nZ3mbsmgYcNhQ4aka4eyDS8GRQJmQdmGCYLQAhIBgrAcEgGCsBwSAYKwHBIBgrAcMiQlCMuhLsIIQV2EZkFdhARBaAGJAEFYDokAQVgOiQBBWA6JAEFYDokAQVgOiQBBWM7qItCroeAmkRwwIk0mXRRqUXAiVYRhSNrHPINLu7HMkJRnGHb3jpDj6QUzeZTLZZTzGaBRQu5oD25NrmU2YRqSGmpwaS0WGpI28wmRPSVTHlkWZBsiQ9IRllnXPINLO7HUkPTXT5FdFO/fyunoEaIhqcEGl1ZiqyHp2/fsfY8Gvv8Yrv/3fnwXfoQJw9UhTENSkw0ubcRaQ9Lt0z+QZzrQyO0h6RZQ6/VQKySxx/OPZ8r4w2QnopANSU02uLQRiw1Jt3F630Q5k0CjlMPR3h6OmAAk8k08eQcGuxKHbUhqtsGlfdhuSNr7gbu2bBtIJHj1gEcGv8EtGNxFqIMhqcBMg0t7sdGQtOZiay+HEvIoN+9xf3+Pp2aZVREaKLEqwpaRfYR6GZKaaHBpM5YZktbgctshZFC+P8VBEPtvH4gqAm8rQOkSpgUEehiSmm1waR+2GpL2umjz/xPvMd4HsI3YjvpoKGEbkppscGkjdhqSbscgnvPGT/wSMwbpoSsUYgcxw1oHdTEkNdng0kbMvV7A/wPcE9+RDIGeXgAAAABJRU5ErkJggg==" alt="ตัวอย่างตาราง Excel คอลัมน์ ชื่อไฟล์ และ จำนวนหน้า">
+        <div class="example-cap">ตัวอย่างตาราง Excel — คอลัมน์ A คือ <code>ชื่อไฟล์</code> (ไม่ต้องใส่นามสกุล .pdf) คอลัมน์ B คือ <code>จำนวนหน้า</code> ของไฟล์นั้น เรียงแถวตามลำดับหน้าของ PDF ต้นฉบับ</div>
+      </div>
 
       <div class="drop-row">
         <div class="drop" id="dropPdf">
@@ -379,6 +405,15 @@
       <div class="field-row" id="sheetRow" style="display:none;">
         <label class="field-label">เลือกชีตที่ต้องการอ่าน</label>
         <select id="sheetSelect"></select>
+      </div>
+
+      <div class="field-row" id="nameModeRow" style="display:none;">
+        <label class="field-label" for="nameMode">รูปแบบชื่อไฟล์ที่ได้</label>
+        <select id="nameMode">
+          <option value="number">เลขหนังสืออย่างเดียว (ตามคอลัมน์ ชื่อไฟล์)</option>
+          <option value="number_title">เลขหนังสือ + ชื่อเรื่อง (ตามคอลัมน์ ชื่อเรื่อง)</option>
+        </select>
+        <div class="field-hint">พบคอลัมน์ <code>ชื่อเรื่อง</code> ใน Excel — ชื่อเรื่องจะถูกตัดให้ไม่เกิน 100 ตัวอักษร และแทนอักขระต้องห้ามในชื่อไฟล์ให้อัตโนมัติ</div>
       </div>
     </div>
 
@@ -488,6 +523,8 @@ const { PDFDocument } = PDFLib;
   const xlsxFileName = document.getElementById('xlsxFileName');
   const sheetRow = document.getElementById('sheetRow');
   const sheetSelect = document.getElementById('sheetSelect');
+  const nameModeRow = document.getElementById('nameModeRow');
+  const nameMode = document.getElementById('nameMode');
   const checkCard = document.getElementById('checkCard');
   const statRows = document.getElementById('statRows');
   const statPdfPages = document.getElementById('statPdfPages');
@@ -514,14 +551,19 @@ const { PDFDocument } = PDFLib;
   pdfInput.addEventListener('change', async (e)=>{
     const f = e.target.files[0];
     if(!f) return;
-    pdfFileName.textContent = f.name;
+    pdfFileName.textContent = f.name + ' — กำลังอ่านไฟล์ (ไฟล์ขนาดใหญ่อาจใช้เวลาสักครู่)...';
     pdfBytes = await f.arrayBuffer();
     try{
-      pdfDoc = await PDFDocument.load(pdfBytes);
+      pdfDoc = await PDFDocument.load(pdfBytes, {
+        ignoreEncryption: true,     // many scanned/official PDFs are permission-locked (owner password) even with no open password — without this, loading throws
+        throwOnInvalidObject: false,
+        updateMetadata: false
+      });
       pdfTotalPages = pdfDoc.getPageCount();
+      pdfFileName.textContent = f.name + ' (' + pdfTotalPages + ' หน้า, ' + formatFileSize(f.size) + ')';
     }catch(err){
       pdfDoc = null; pdfTotalPages = 0;
-      pdfFileName.textContent = f.name + ' — ไม่สามารถอ่านไฟล์นี้ได้';
+      pdfFileName.textContent = f.name + ' — ไม่สามารถอ่านไฟล์นี้ได้: ' + err.message;
     }
     tryReveal();
   });
@@ -556,8 +598,9 @@ const { PDFDocument } = PDFLib;
     json.forEach(row=>{
       const fileName = row['ชื่อไฟล์'];
       let pageCount = parseInt(row['จำนวนหน้า'], 10);
+      const title = String(row['ชื่อเรื่อง'] == null ? '' : row['ชื่อเรื่อง']).trim();
       if(fileName && !isNaN(pageCount) && pageCount > 0){
-        excelRows.push({fileName: String(fileName).trim(), pageCount});
+        excelRows.push({fileName: String(fileName).trim(), pageCount, title});
         excelTotalPages += pageCount;
       }
     });
@@ -571,6 +614,7 @@ const { PDFDocument } = PDFLib;
       statExcelPages.textContent = excelTotalPages;
       renderMatchBanner();
     }
+    if(excelRows) nameModeRow.style.display = excelRows.some(r => r.title) ? 'block' : 'none';
   }
 
   function renderMatchBanner(){
@@ -609,6 +653,7 @@ const { PDFDocument } = PDFLib;
 
     let startPage = 1;
     const total = excelRows.length;
+    const usedNames = new Set();
 
     for(let i=0; i<total; i++){
       const row = excelRows[i];
@@ -616,6 +661,15 @@ const { PDFDocument } = PDFLib;
       const endPage = startPage + count - 1;
       const rangeLabel = (startPage === endPage) ? String(startPage) : (startPage + '-' + endPage);
       let status = 'สำเร็จ', note = '-';
+      const useTitle = nameMode.value === 'number_title' && row.title;
+      let outName = makeSafeName(useTitle ? (row.fileName + '_' + truncateText(row.title, 100)) : row.fileName);
+      if(usedNames.has(outName.toLowerCase())){
+        let k = 2;
+        while(usedNames.has((outName + '_' + k).toLowerCase())) k++;
+        outName = outName + '_' + k;
+        note = 'ชื่อซ้ำ จึงเติมเลขต่อท้าย';
+      }
+      usedNames.add(outName.toLowerCase());
 
       try{
         const from = startPage - 1, to = endPage - 1;
@@ -628,20 +682,20 @@ const { PDFDocument } = PDFLib;
         const copiedPages = await newDoc.copyPages(pdfDoc, indices);
         copiedPages.forEach(pg => newDoc.addPage(pg));
         const bytes = await newDoc.save();
-        outputFiles.push({name: row.fileName + '.pdf', bytes});
+        outputFiles.push({name: outName + '.pdf', bytes});
       }catch(err){
         status = 'ล้มเหลว';
         note = 'ตรวจสอบข้อมูลในแถวที่ ' + (i+2) + ' (' + err.message + ')';
       }
 
-      const entry = {time: nowTimeText(), name: row.fileName, range: rangeLabel, status, note};
+      const entry = {time: nowTimeText(), name: outName, range: rangeLabel, status, note};
       logRows.push(entry);
       appendLogRow(entry);
 
       startPage = endPage + 1;
       const pct = Math.round(((i+1)/total)*100);
       progressBar.style.width = pct + '%';
-      progressText.textContent = 'กำลังแยกไฟล์ ' + (i+1) + ' / ' + total + ' — ' + row.fileName + '.pdf';
+      progressText.textContent = 'กำลังแยกไฟล์ ' + (i+1) + ' / ' + total + ' — ' + outName + '.pdf';
       await new Promise(r=>setTimeout(r, 0));
     }
 
@@ -780,11 +834,17 @@ const { PDFDocument } = PDFLib;
   mergeBtn.addEventListener('click', async ()=>{
     mergeBtn.disabled = true;
     resultBanner.innerHTML = '';
+    let currentFileName = '';
     try{
       const merged = await PDFDocument.create();
       for(const entry of files){
+        currentFileName = entry.file.name;
         const bytes = await entry.file.arrayBuffer();
-        const src = await PDFDocument.load(bytes);
+        const src = await PDFDocument.load(bytes, {
+          ignoreEncryption: true,
+          throwOnInvalidObject: false,
+          updateMetadata: false
+        });
         const pages = await merged.copyPages(src, src.getPageIndices());
         pages.forEach(p => merged.addPage(p));
       }
@@ -801,7 +861,8 @@ const { PDFDocument } = PDFLib;
     }catch(err){
       const div = document.createElement('div');
       div.className = 'banner err';
-      div.innerHTML = '<b>เกิดข้อผิดพลาด</b> — ไม่สามารถรวมไฟล์ได้ (' + escapeHtml(err.message) + ') กรุณาตรวจสอบว่าไฟล์ทั้งหมดเป็น PDF ที่เปิดได้ปกติ';
+      const whichFile = currentFileName ? ' — ไฟล์ที่มีปัญหา: ' + escapeHtml(currentFileName) : '';
+      div.innerHTML = '<b>เกิดข้อผิดพลาด</b> — ไม่สามารถรวมไฟล์ได้ (' + escapeHtml(err.message) + ')' + whichFile + ' กรุณาตรวจสอบว่าไฟล์นี้เป็น PDF ที่เปิดได้ปกติ';
       resultBanner.appendChild(div);
     }
     mergeBtn.disabled = files.length < 2;
@@ -809,6 +870,20 @@ const { PDFDocument } = PDFLib;
 })();
 
 /* ================= shared helpers ================= */
+function formatFileSize(bytes){
+  if(bytes < 1024) return bytes + ' B';
+  if(bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1024/1024).toFixed(1) + ' MB';
+}
+function makeSafeName(s){
+  // แทนอักขระต้องห้ามของ Windows/macOS, ยุบช่องว่าง, ตัดจุด/ช่องว่างท้ายชื่อ
+  let t = String(s).replace(/[\\/:*?"<>|\u0000-\u001f]/g, '-').replace(/\s+/g, ' ').trim().replace(/[. ]+$/,'');
+  return t || 'untitled';
+}
+function truncateText(s, max){
+  const arr = Array.from(String(s));
+  return arr.length <= max ? s : arr.slice(0, max).join('').trim();
+}
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
