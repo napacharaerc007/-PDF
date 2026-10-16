@@ -644,6 +644,43 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   #pc-veil{ position:fixed; inset:0; background:rgba(15,108,189,.88); color:#fff; display:none; align-items:center; justify-content:center; flex-direction:column; z-index:60; font-size:26px; font-weight:700; pointer-events:none; }
   #pc-veil.on{ display:flex; }
   #pc-veil small{ font-size:15px; font-weight:400; opacity:.9; }
+
+  /* ===== สถานะอัปโหลด (ใช้ร่วมทุกฟังก์ชัน) ===== */
+  .drop.done{ border-style:solid; border-color:#7CC49A; background:var(--green-bg); }
+  .drop.done:hover,.drop.done.drag{ border-color:var(--green); background:#D7EEDF; }
+  .drop.bad{ border-style:solid; border-color:#E8A49C; background:var(--red-bg); }
+  .drop.busy{ border-style:solid; border-color:#BCD7F3; background:#EEF5FD; }
+  .drop.done .drop-label::before{ content:"✅ "; }
+  .drop.bad .drop-label::before{ content:"❌ "; }
+  .drop.busy .drop-label::before{ content:"⏳ "; }
+  .step-num.done{ background:var(--green) !important; }
+  .upbox{ margin-top:12px; border-radius:10px; padding:10px 14px; border:1px solid #BFE0C8; background:var(--green-bg); animation:upPop .25s ease; }
+  .upbox.warn{ border-color:#EBD38F; background:var(--amber-bg); }
+  .upbox.err{ border-color:#F1B9B4; background:var(--red-bg); }
+  .upbox.busy{ border-color:#BCD7F3; background:#EEF5FD; }
+  .upbox-hd{ font-weight:700; color:var(--green); display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; align-items:baseline; }
+  .upbox.warn .upbox-hd{ color:var(--amber); } .upbox.err .upbox-hd{ color:var(--red); } .upbox.busy .upbox-hd{ color:var(--teal-dark); }
+  .upbox-hd span{ font-weight:400; color:var(--ink-soft); font-size:13px; }
+  .upbox-list{ margin:6px 0 0; padding:0; list-style:none; font-size:13px; }
+  .upbox-list li{ padding:2px 0; word-break:break-all; }
+  .upbox-list li small{ color:var(--ink-soft); }
+  .upchips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .upchip{ background:#fff; border:1px solid #A7D7B6; border-radius:8px; padding:2px 9px; font-size:12.5px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .upchip.new{ border-color:var(--green); box-shadow:0 0 0 2px #BFE0C8; }
+  .upchip small{ color:var(--ink-soft); }
+  .upbox-skip{ color:var(--amber); font-size:12.5px; margin-top:6px; }
+  @keyframes upPop{ from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:none;} }
+  .mode-card.unlock .mode-glyph{ background:var(--green); font-size:15px; }
+  #ul-veil{ position:fixed; inset:0; background:rgba(16,124,65,.85); color:#fff; display:none; align-items:center; justify-content:center; flex-direction:column; z-index:60; font-size:24px; font-weight:700; pointer-events:none; }
+  #ul-veil.on{ display:flex; }
+  #ul-veil small{ font-size:15px; font-weight:400; opacity:.9; }
+  .ul-pw{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .ul-pw input[type=password],.ul-pw input[type=text]{ width:100%; max-width:320px; font-family:inherit; font-size:14.5px; padding:9px 10px; border:1px solid var(--line-strong); border-radius:var(--radius); background:#fff; color:var(--ink); }
+  .ul-pw input:focus{ outline:2px solid var(--teal); border-color:var(--teal); }
+  .ul-det{ color:var(--ink-soft); font-size:12px; margin-top:3px; }
+  .pill.info{ background:#EAF1F9; color:var(--teal-dark); } .pill.warn{ background:var(--amber-bg); color:var(--amber); } .pill.run{ background:#EEF5FD; color:var(--teal); } .pill.wait{ background:#F1F3F6; color:var(--ink-soft); }
+  .ul-x{ background:none; border:0; color:var(--ink-soft); cursor:pointer; font-size:15px; }
+  .ul-x:hover{ color:var(--red); }
 </style>
 </head>
 <body>
@@ -672,6 +709,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="mode-glyph">ตัด</div>
         <div class="mode-title">ตัดตามหน้า</div>
         <div class="mode-desc">เลือกเฉพาะหน้าที่ต้องการจาก PDF เช่น 460-466 พร้อมดูตัวอย่างหน้าก่อนตัด</div>
+      </div>
+      <div class="mode-card unlock" onclick="goTo('unlock')">
+        <div class="mode-glyph">🔓</div>
+        <div class="mode-title">ปลดล็อก PDF</div>
+        <div class="mode-desc">ปลดข้อจำกัดห้ามพิมพ์ / ห้ามคัดลอก / ห้ามแก้ไข ได้หลายไฟล์พร้อมกัน ใส่รหัสผ่านได้ถ้าไฟล์ต้องใช้รหัสเปิด</div>
       </div>
     </div>
 
@@ -711,6 +753,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
           <div class="drop-file" id="xlsxFileName"></div>
         </div>
       </div>
+      <div class="upbox" id="splitUpBox" hidden></div>
 
       <div class="field-row" id="sheetRow" style="display:none;">
         <label class="field-label">เลือกชีตที่ต้องการอ่าน</label>
@@ -782,6 +825,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="drop-label">เลือกไฟล์ PDF</div>
         <div class="drop-hint">คลิกหรือวางไฟล์ .pdf หลายไฟล์ที่นี่ (เลือกเพิ่มได้เรื่อยๆ)</div>
       </div>
+      <div class="upbox" id="mergeUpBox" hidden></div>
 
       <ul class="filelist" id="mergeFileList">
         <li class="empty-note" id="mergeEmptyNote">ยังไม่ได้เลือกไฟล์</li>
@@ -887,6 +931,55 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <footer class="note">ไฟล์ PDF ของคุณไม่ถูกส่งออกไปที่ใดเลย — การตัดหน้าทำงานในเครื่อง ส่วนภาพตัวอย่างหน้าต้องโหลดตัวแสดงผลจากอินเทอร์เน็ต (ถ้าโหลดไม่ได้ยังตัดหน้าได้ตามปกติ)</footer>
   </div>
 
+  <!-- ============ VIEW: UNLOCK (ปลดล็อก PDF) ============ -->
+  <div data-view="unlock">
+    <header class="page-head">
+      <div class="kicker"><a class="back-link" onclick="goTo('home')">‹ กลับ</a>เครื่องมือ PDF</div>
+      <h1>ปลดล็อก PDF</h1>
+      <p class="lede">ปลดข้อจำกัดห้ามพิมพ์ / ห้ามคัดลอก / ห้ามแก้ไข ออกจากไฟล์ PDF — เลือกได้หลายไฟล์พร้อมกัน</p>
+    </header>
+
+    <div class="card">
+      <div class="card-title"><span class="step-num">1</span><h2>เลือกไฟล์ PDF</h2></div>
+      <div class="card-sub">เลือกได้หลายไฟล์ หรือลากไฟล์มาวางที่ใดก็ได้ในหน้านี้</div>
+      <div class="drop" id="ul-drop">
+        <input type="file" id="ul-file" accept="application/pdf,.pdf" multiple>
+        <div class="drop-label">ลากไฟล์ PDF มาวางที่นี่</div>
+        <div class="drop-hint">หรือคลิกเพื่อเลือกไฟล์จากเครื่อง (เลือกได้หลายไฟล์)</div>
+      </div>
+      <div class="upbox" id="ul-upBox" hidden></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="step-num">2</span><h2>รหัสผ่าน (ถ้ามี)</h2></div>
+      <div class="card-sub">ไฟล์ส่วนใหญ่ล็อกแค่สิทธิ์ ไม่ต้องใส่รหัส — ใส่เฉพาะไฟล์ที่ต้องพิมพ์รหัสก่อนเปิดอ่าน (ใช้รหัสเปิดไฟล์หรือรหัสเจ้าของก็ได้)</div>
+      <div class="ul-pw">
+        <input type="password" id="ul-pwd" placeholder="เว้นว่างได้" autocomplete="off">
+        <label class="checkline" style="margin:0"><input type="checkbox" id="ul-showPw"> แสดงรหัส</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="step-num">3</span><h2>ปลดล็อกและดาวน์โหลด</h2></div>
+      <div class="card-sub">ไฟล์ที่ปลดล็อกแล้วจะมีชื่อต่อท้าย <code>_unlocked</code></div>
+      <table class="log">
+        <thead><tr><th style="width:42%">ไฟล์</th><th>สถานะ</th><th style="width:110px"></th><th style="width:28px"></th></tr></thead>
+        <tbody id="ul-list"><tr><td colspan="4" class="empty-note">ยังไม่ได้เลือกไฟล์</td></tr></tbody>
+      </table>
+      <div class="actions" style="justify-content:space-between">
+        <div class="actions" style="margin-top:0">
+          <button class="btn teal" id="ul-go" disabled>🔓 ปลดล็อกทั้งหมด</button>
+          <button class="btn ghost" id="ul-zip" disabled>ดาวน์โหลดทั้งหมด (.zip)</button>
+        </div>
+        <button class="btn ghost" id="ul-clear" disabled>ล้างรายการ</button>
+      </div>
+    </div>
+
+    <div class="banner warn">⚠️ ใช้กับเอกสารที่หน่วยงานได้รับมาโดยชอบและมีสิทธิ์ใช้งานเท่านั้น ควรเก็บไฟล์ต้นฉบับที่ล็อกไว้เป็นหลักฐาน และใช้ไฟล์ที่ปลดล็อกสำหรับงานภายใน</div>
+    <footer class="note">ไฟล์ PDF ของคุณไม่ถูกส่งออกไปที่ใดเลย — การถอดรหัสทำในเบราว์เซอร์ด้วย pdf-lib และ Web Crypto (ใช้ Chrome หรือ Edge)</footer>
+  </div>
+  <div id="ul-veil">📥 ปล่อยไฟล์ PDF เพื่อเพิ่มรายการ<small>ไฟล์จะไม่ถูกอัปโหลดออกจากเครื่อง</small></div>
+
   <div id="pc-lb">
     <div id="pc-lbBar">
       <button type="button" id="pc-lbPrev">◀ ก่อนหน้า</button>
@@ -952,6 +1045,7 @@ const { PDFDocument } = PDFLib;
     const f = e.target.files[0];
     if(!f) return;
     pdfFileName.textContent = f.name + ' — กำลังอ่านไฟล์ (ไฟล์ขนาดใหญ่อาจใช้เวลาสักครู่)...';
+    upPdf = {state:'busy', name:f.name, detail:formatFileSize(f.size)}; renderSplitUpload();
     pdfBytes = await f.arrayBuffer();
     try{
       pdfDoc = await PDFDocument.load(pdfBytes, {
@@ -961,10 +1055,13 @@ const { PDFDocument } = PDFLib;
       });
       pdfTotalPages = pdfDoc.getPageCount();
       pdfFileName.textContent = f.name + ' (' + pdfTotalPages + ' หน้า, ' + formatFileSize(f.size) + ')';
+      upPdf = {state:'ok', name:f.name, detail:pdfTotalPages + ' หน้า · ' + formatFileSize(f.size)};
     }catch(err){
       pdfDoc = null; pdfTotalPages = 0;
       pdfFileName.textContent = f.name + ' — ไม่สามารถอ่านไฟล์นี้ได้: ' + err.message;
+      upPdf = {state:'err', name:f.name, detail:'อ่านไฟล์ไม่ได้: ' + err.message};
     }
+    renderSplitUpload();
     tryReveal();
   });
 
@@ -972,10 +1069,15 @@ const { PDFDocument } = PDFLib;
     const f = e.target.files[0];
     if(!f) return;
     xlsxFileName.textContent = f.name;
+    upXlsx = {state:'busy', name:f.name, detail:formatFileSize(f.size)}; renderSplitUpload();
     const reader = new FileReader();
+    reader.onerror = ()=>{ upXlsx = {state:'err', name:f.name, detail:'อ่านไฟล์ไม่ได้'}; renderSplitUpload(); };
     reader.onload = (ev)=>{
       const data = new Uint8Array(ev.target.result);
-      workbook = XLSX.read(data, {type:'array'});
+      try{ workbook = XLSX.read(data, {type:'array'}); }
+      catch(err){ workbook = null; excelRows = null; xlsxFileName.textContent = f.name + ' — อ่านไฟล์ไม่ได้: ' + err.message;
+        upXlsx = {state:'err', name:f.name, detail:'อ่านไฟล์ไม่ได้: ' + err.message}; renderSplitUpload(); return; }
+      upXlsx = {state:'ok', name:f.name, size:f.size};
       sheetSelect.innerHTML = '';
       workbook.SheetNames.forEach(name=>{
         const opt = document.createElement('option');
@@ -1006,7 +1108,36 @@ const { PDFDocument } = PDFLib;
     });
   }
 
+  let upPdf = null, upXlsx = null;
+  function renderSplitUpload(){
+    const box = document.getElementById('splitUpBox');
+    const step = dropPdf.closest('.card').querySelector('.step-num');
+    if(upXlsx && upXlsx.state === 'ok' && upXlsx.size != null){
+      const rows = excelRows ? excelRows.length : 0;
+      upXlsx.detail = 'ชีต "' + (sheetSelect.value || '-') + '" · ' + rows + ' แถวที่ใช้ได้ · ' + formatFileSize(upXlsx.size);
+      upXlsx.warn = rows === 0 ? 'ไม่พบแถวที่มีคอลัมน์ ชื่อไฟล์ และ จำนวนหน้า ในชีตนี้' : '';
+    }
+    [[dropPdf, upPdf], [dropXlsx, upXlsx]].forEach(([d, s])=>{
+      d.classList.remove('done','bad','busy');
+      if(s) d.classList.add(s.state === 'ok' ? (s.warn ? 'bad' : 'done') : s.state === 'err' ? 'bad' : 'busy');
+    });
+    const items = [['PDF', upPdf], ['Excel', upXlsx]].filter(x=>x[1]);
+    if(!items.length){ box.hidden = true; step.classList.remove('done'); step.textContent = '1'; return; }
+    const allOk = upPdf && upXlsx && upPdf.state === 'ok' && upXlsx.state === 'ok' && !upXlsx.warn;
+    const anyErr = items.some(x=>x[1].state === 'err' || x[1].warn);
+    const anyBusy = items.some(x=>x[1].state === 'busy');
+    step.classList.toggle('done', allOk); step.textContent = allOk ? '✓' : '1';
+    box.hidden = false;
+    box.className = 'upbox' + (anyErr ? ' err' : anyBusy ? ' busy' : allOk ? '' : ' warn');
+    const head = anyErr ? '⚠️ มีไฟล์ที่ใช้งานไม่ได้' : anyBusy ? '⏳ กำลังอ่านไฟล์...' : allOk ? '✅ อัปโหลดเสร็จแล้วครบ 2 ไฟล์' : '✅ อัปโหลดเสร็จแล้ว 1 ไฟล์';
+    const sub = allOk ? 'ไปตรวจสอบข้อมูลในขั้นตอนที่ 2' : (!anyErr && !anyBusy) ? ('ยังขาดไฟล์ ' + (upPdf ? 'Excel' : 'PDF')) : '';
+    const icon = s => s.state === 'ok' ? (s.warn ? '⚠️' : '✅') : s.state === 'err' ? '❌' : '⏳';
+    box.innerHTML = '<div class="upbox-hd">' + head + (sub ? '<span>' + sub + '</span>' : '') + '</div><ul class="upbox-list">' +
+      items.map(([k, s])=>'<li>' + icon(s) + ' <b>' + k + ':</b> ' + escapeHtml(s.name) + ' <small>— ' + escapeHtml(s.warn || s.detail || '') + '</small></li>').join('') + '</ul>';
+  }
+
   function tryReveal(){
+    renderSplitUpload();
     if(pdfDoc && excelRows && excelRows.length > 0){
       checkCard.style.display = 'block';
       statRows.textContent = excelRows.length;
@@ -1151,7 +1282,7 @@ const { PDFDocument } = PDFLib;
   drop.addEventListener('drop', e=>{
     e.preventDefault();
     drop.classList.remove('drag');
-    addFiles(Array.from(e.dataTransfer.files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')));
+    addFiles(Array.from(e.dataTransfer.files));
   });
 
   fileInput.addEventListener('change', (e)=>{
@@ -1159,11 +1290,39 @@ const { PDFDocument } = PDFLib;
     fileInput.value = '';
   });
 
+  let lastNew = new Set(), lastSkip = {bad:0, dup:0};
   function addFiles(newFiles){
-    newFiles.forEach(f=> files.push({id: idCounter++, file: f}));
+    lastNew = new Set(); lastSkip = {bad:0, dup:0};
+    newFiles.forEach(f=>{
+      if(!(f.type === 'application/pdf' || /\.pdf$/i.test(f.name))){ lastSkip.bad++; return; }
+      if(files.some(x=>x.file.name === f.name && x.file.size === f.size)){ lastSkip.dup++; return; }
+      const id = idCounter++; files.push({id, file: f}); lastNew.add(id);
+    });
     renderList();
   }
-  function removeFile(id){ files = files.filter(x => x.id !== id); renderList(); }
+  function renderMergeUpload(){
+    const box = document.getElementById('mergeUpBox');
+    const step = drop.closest('.card').querySelector('.step-num');
+    const has = files.length > 0;
+    drop.classList.toggle('done', has);
+    drop.querySelector('.drop-label').textContent = has ? 'อัปโหลดเสร็จแล้ว' : 'เลือกไฟล์ PDF';
+    drop.querySelector('.drop-hint').textContent = has ? 'ลากไฟล์มาวางหรือคลิกเพื่อเพิ่มไฟล์ได้อีก' : 'คลิกหรือวางไฟล์ .pdf หลายไฟล์ที่นี่ (เลือกเพิ่มได้เรื่อยๆ)';
+    step.classList.toggle('done', has); step.textContent = has ? '✓' : '1';
+    const skip = [];
+    if(lastSkip.bad) skip.push('ข้าม ' + lastSkip.bad + ' ไฟล์ที่ไม่ใช่ PDF');
+    if(lastSkip.dup) skip.push('ข้าม ' + lastSkip.dup + ' ไฟล์ที่เลือกซ้ำ');
+    if(!has && !skip.length){ box.hidden = true; return; }
+    const total = files.reduce((s,x)=>s + x.file.size, 0);
+    box.hidden = false;
+    box.className = 'upbox' + (has ? '' : ' warn');
+    const added = files.filter(x=>lastNew.has(x.id)).length;
+    box.innerHTML = (has
+      ? '<div class="upbox-hd">✅ อัปโหลดเสร็จแล้ว ' + files.length + ' ไฟล์' + (added && added < files.length ? ' (เพิ่มใหม่ ' + added + ')' : '') +
+        '<span>รวม ' + formatSize(total) + (files.length < 2 ? ' · เพิ่มอีกอย่างน้อย 1 ไฟล์เพื่อรวม' : ' · จัดลำดับด้านล่างแล้วไปขั้นตอนที่ 2') + '</span></div>'
+      : '<div class="upbox-hd">⚠️ ยังไม่มีไฟล์ PDF ที่ใช้ได้</div>')
+      + (skip.length ? '<div class="upbox-skip">⚠️ ' + skip.join(' · ') + '</div>' : '');
+  }
+  function removeFile(id){ files = files.filter(x => x.id !== id); lastSkip = {bad:0, dup:0}; renderList(); }
   function moveFile(id, dir){
     const idx = files.findIndex(x => x.id === id);
     const target = idx + dir;
@@ -1178,6 +1337,7 @@ const { PDFDocument } = PDFLib;
   }
 
   function renderList(){
+    renderMergeUpload();
     fileList.innerHTML = '';
     if(files.length === 0){
       fileList.appendChild(emptyNote);
@@ -1653,6 +1813,399 @@ el.range.addEventListener('keydown', e => { if (e.key === 'Enter' && !el.go.disa
 
 })();
 } catch (err) { console.error("ตัดตามหน้า: เริ่มทำงานไม่สำเร็จ — " + (err && err.message ? err.message : err)); }
+</script>
+
+<!-- ===== ฟังก์ชัน "ปลดล็อก PDF" (สคริปต์แยก ไม่แก้สคริปต์เดิม) ===== -->
+<script>
+/* PDF Unlock core — ปลดล็อก PDF ที่เข้ารหัสแบบ Standard Security Handler (RC4 40/128, AES-128, AES-256)
+   ทำงานในเครื่องทั้งหมด ใช้ pdf-lib + Web Crypto API  */
+(function (root) {
+  'use strict';
+  const PAD = new Uint8Array([0x28,0xBF,0x4E,0x5E,0x4E,0x75,0x8A,0x41,0x64,0x00,0x4E,0x56,0xFF,0xFA,0x01,0x08,
+    0x2E,0x2E,0x00,0xB6,0xD0,0x68,0x3E,0x80,0x2F,0x0C,0xA9,0xFE,0x64,0x53,0x69,0x7A]);
+
+  // ---------- MD5 ----------
+  function md5(data) {
+    const K = new Uint32Array(64), S = [7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,
+      4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21];
+    for (let i = 0; i < 64; i++) K[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 4294967296) >>> 0;
+    const len = data.length, nBlocks = ((len + 8) >>> 6) + 1, buf = new Uint8Array(nBlocks * 64);
+    buf.set(data); buf[len] = 0x80;
+    const bitLen = len * 8, dv = new DataView(buf.buffer);
+    dv.setUint32(buf.length - 8, bitLen >>> 0, true); dv.setUint32(buf.length - 4, Math.floor(bitLen / 4294967296), true);
+    let a0 = 0x67452301, b0 = 0xefcdab89, c0 = 0x98badcfe, d0 = 0x10325476;
+    const M = new Uint32Array(16);
+    for (let blk = 0; blk < nBlocks; blk++) {
+      for (let j = 0; j < 16; j++) M[j] = dv.getUint32(blk * 64 + j * 4, true);
+      let A = a0, B = b0, C = c0, D = d0;
+      for (let i = 0; i < 64; i++) {
+        let F, g;
+        if (i < 16) { F = (B & C) | (~B & D); g = i; }
+        else if (i < 32) { F = (D & B) | (~D & C); g = (5 * i + 1) % 16; }
+        else if (i < 48) { F = B ^ C ^ D; g = (3 * i + 5) % 16; }
+        else { F = C ^ (B | ~D); g = (7 * i) % 16; }
+        F = (F + A + K[i] + M[g]) >>> 0;
+        A = D; D = C; C = B;
+        B = (B + ((F << S[i]) | (F >>> (32 - S[i])))) >>> 0;
+      }
+      a0 = (a0 + A) >>> 0; b0 = (b0 + B) >>> 0; c0 = (c0 + C) >>> 0; d0 = (d0 + D) >>> 0;
+    }
+    const out = new Uint8Array(16), odv = new DataView(out.buffer);
+    odv.setUint32(0, a0, true); odv.setUint32(4, b0, true); odv.setUint32(8, c0, true); odv.setUint32(12, d0, true);
+    return out;
+  }
+
+  function rc4(key, data) {
+    const s = new Uint8Array(256); for (let i = 0; i < 256; i++) s[i] = i;
+    for (let i = 0, j = 0; i < 256; i++) { j = (j + s[i] + key[i % key.length]) & 255; [s[i], s[j]] = [s[j], s[i]]; }
+    const out = new Uint8Array(data.length);
+    for (let k = 0, i = 0, j = 0; k < data.length; k++) {
+      i = (i + 1) & 255; j = (j + s[i]) & 255; [s[i], s[j]] = [s[j], s[i]];
+      out[k] = data[k] ^ s[(s[i] + s[j]) & 255];
+    }
+    return out;
+  }
+  const concat = (...arrs) => { let n = 0; arrs.forEach(a => n += a.length); const o = new Uint8Array(n); let p = 0; arrs.forEach(a => { o.set(a, p); p += a.length; }); return o; };
+  const eq = (a, b, n) => { for (let i = 0; i < n; i++) if (a[i] !== b[i]) return false; return true; };
+  const subtle = () => (root.crypto && root.crypto.subtle) || (typeof globalThis !== 'undefined' && globalThis.crypto && globalThis.crypto.subtle);
+  const sha = async (alg, d) => new Uint8Array(await subtle().digest(alg, d));
+
+  async function aesCbcDecrypt(key, iv, data, noPad) {
+    const k = await subtle().importKey('raw', key, 'AES-CBC', false, ['decrypt']);
+    if (!noPad) return new Uint8Array(await subtle().decrypt({ name: 'AES-CBC', iv }, k, data));
+    // ไม่มี padding: เติมบล็อก padding ที่เข้ารหัสแล้วต่อท้ายเพื่อให้ WebCrypto ถอดได้
+    const kE = await subtle().importKey('raw', key, 'AES-CBC', false, ['encrypt']);
+    const last = data.slice(data.length - 16);
+    const padBlock = (await subtle().encrypt({ name: 'AES-CBC', iv: last }, kE, new Uint8Array(0))); // = E(16x0x10 xor last)
+    const full = concat(data, new Uint8Array(padBlock));
+    return new Uint8Array(await subtle().decrypt({ name: 'AES-CBC', iv }, k, full));
+  }
+  async function aesCbcEncryptNoPad(key, iv, data) {
+    const k = await subtle().importKey('raw', key, 'AES-CBC', false, ['encrypt']);
+    const r = new Uint8Array(await subtle().encrypt({ name: 'AES-CBC', iv }, k, data));
+    return r.slice(0, data.length);
+  }
+
+  // ---------- คำนวณกุญแจ R2-R4 ----------
+  function padPwd(pwBytes) { const p = new Uint8Array(32); const n = Math.min(32, pwBytes.length); p.set(pwBytes.slice(0, n)); p.set(PAD.slice(0, 32 - n), n); return p; }
+  function computeKeyR4(pw, enc) {
+    let h = md5(concat(padPwd(pw), enc.O, enc.Pbytes, enc.ID, (enc.R >= 4 && !enc.encryptMetadata) ? new Uint8Array([255,255,255,255]) : new Uint8Array(0)));
+    const n = enc.keyLen;
+    if (enc.R >= 3) for (let i = 0; i < 50; i++) h = md5(h.slice(0, n));
+    return h.slice(0, n);
+  }
+  function checkUserR4(key, enc) {
+    if (enc.R === 2) return eq(rc4(key, PAD), enc.U, 32);
+    let x = rc4(key, md5(concat(PAD, enc.ID)));
+    for (let i = 1; i <= 19; i++) x = rc4(key.map(b => b ^ i), x);
+    return eq(x, enc.U, 16);
+  }
+  function ownerToUserPwd(ownerPw, enc) {
+    let h = md5(padPwd(ownerPw));
+    if (enc.R >= 3) for (let i = 0; i < 50; i++) h = md5(h);
+    const k = h.slice(0, enc.keyLen);
+    let x = enc.O.slice(0, 32);
+    if (enc.R === 2) return rc4(k, x);
+    for (let i = 19; i >= 0; i--) x = rc4(k.map(b => b ^ i), x);
+    return x;
+  }
+
+  // ---------- R5/R6 (AES-256) ----------
+  async function hashR6(pw, salt, udata, R) {
+    let K = await sha('SHA-256', concat(pw, salt, udata));
+    if (R === 5) return K;
+    let i = 0, E;
+    while (true) {
+      const K1one = concat(pw, K, udata), K1 = new Uint8Array(K1one.length * 64);
+      for (let j = 0; j < 64; j++) K1.set(K1one, j * K1one.length);
+      E = await aesCbcEncryptNoPad(K.slice(0, 16), K.slice(16, 32), K1);
+      let sum = 0; for (let j = 0; j < 16; j++) sum += E[j];
+      const alg = ['SHA-256', 'SHA-384', 'SHA-512'][sum % 3];
+      K = await sha(alg, E);
+      i++;
+      if (i >= 64 && E[E.length - 1] <= i - 32) break;
+    }
+    return K.slice(0, 32);
+  }
+  async function keyR6(pw, enc) {
+    pw = pw.slice(0, 127);
+    const U = enc.U, O = enc.O;
+    if (eq(await hashR6(pw, U.slice(32, 40), new Uint8Array(0), enc.R), U, 32)) {
+      const ik = await hashR6(pw, U.slice(40, 48), new Uint8Array(0), enc.R);
+      return aesCbcDecrypt(ik, new Uint8Array(16), enc.UE, true);
+    }
+    const u48 = U.slice(0, 48);
+    if (eq(await hashR6(pw, O.slice(32, 40), u48, enc.R), O, 32)) {
+      const ik = await hashR6(pw, O.slice(40, 48), u48, enc.R);
+      return aesCbcDecrypt(ik, new Uint8Array(16), enc.OE, true);
+    }
+    return null;
+  }
+
+  // ---------- หลัก ----------
+  async function unlockPdf(bytes, opts) {
+    opts = opts || {};
+    const PL = opts.PDFLib || root.PDFLib;
+    const { PDFDocument, PDFParser, PDFName, PDFDict, PDFArray, PDFString, PDFHexString, PDFRawStream, PDFRef, PDFNumber, PDFObjectStreamParser } = PL;
+    const password = opts.password || '';
+    bytes = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    // ใช้ parser ตรง ๆ เพราะ PDFDocument.load จะพยายามอ่าน catalog ที่ยังเข้ารหัสอยู่
+    const _warn = console.warn; console.warn = () => {};
+    // ระหว่าง parse: เก็บ object stream ดิบไว้ก่อน (ยังเข้ารหัสอยู่ อ่านไม่ได้) แล้วค่อยแตกหลังถอดรหัส
+    const parser = PDFParser.forBytesWithOptions(bytes, 100, false, false);
+    let lastRef = null; const rawObjStms = [];
+    const origHeader = parser.parseIndirectObjectHeader.bind(parser);
+    parser.parseIndirectObjectHeader = function () { lastRef = origHeader(); return lastRef; };
+    const origForStream = PDFObjectStreamParser.forStream;
+    PDFObjectStreamParser.forStream = function (stream) { const r = lastRef; return { parseIntoContext: async () => { rawObjStms.push([r, stream]); } }; };
+    let ctx;
+    try { ctx = await parser.parseDocument(); }
+    finally { console.warn = _warn; PDFObjectStreamParser.forStream = origForStream; }
+    for (const [r, st] of rawObjStms) ctx.assign(r, st);
+    const trailer = ctx.trailerInfo;
+    if (!trailer.Encrypt) return { status: 'not-encrypted', bytes: null };
+    const encDict = trailer.Encrypt instanceof PDFRef ? ctx.lookup(trailer.Encrypt) : trailer.Encrypt;
+    const N = (n) => encDict.get(PDFName.of(n));
+    const num = (o, d) => (o instanceof PDFNumber ? o.asNumber() : d);
+    const strBytes = (o) => (o ? o.asBytes() : new Uint8Array(0));
+    const filter = N('Filter');
+    if (!filter || filter.asString() !== '/Standard') throw new Error('UNSUPPORTED_HANDLER');
+
+    let ID = new Uint8Array(0);
+    const idObj = trailer.ID instanceof PDFRef ? ctx.lookup(trailer.ID) : trailer.ID;
+    if (idObj instanceof PDFArray && idObj.size() > 0) ID = idObj.get(0).asBytes();
+
+    const V = num(N('V'), 0), R = num(N('R'), 2), P = num(N('P'), -1);
+    const em = N('EncryptMetadata');
+    const enc = { V, R, O: strBytes(N('O')), U: strBytes(N('U')), OE: strBytes(N('OE')), UE: strBytes(N('UE')), ID,
+      encryptMetadata: !(em && em.toString() === 'false'),
+      keyLen: V === 1 ? 5 : Math.floor(num(N('Length'), 40) / 8) };
+    enc.Pbytes = new Uint8Array(4); new DataView(enc.Pbytes.buffer).setInt32(0, P, true);
+
+    // วิธีถอดของ stream/string
+    let stmMethod = V >= 4 ? 'Identity' : 'RC4', strMethod = stmMethod;
+    if (V >= 4) {
+      const cf = N('CF'), cfm = (name) => {
+        if (!name || name.asString() === '/Identity') return 'Identity';
+        const f = cf && cf.get(PDFName.of(name.asString().slice(1)));
+        const m = f && f.get(PDFName.of('CFM'));
+        const ms = m ? m.asString() : '/None';
+        return ms === '/AESV2' ? 'AESV2' : ms === '/AESV3' ? 'AESV3' : ms === '/V2' ? 'RC4' : 'Identity';
+      };
+      stmMethod = cfm(N('StmF')); strMethod = cfm(N('StrF'));
+    }
+
+    // หากุญแจ
+    const te = new TextEncoder();
+    let key = null, usedOwner = false;
+    if (R >= 5) {
+      key = await keyR6(te.encode(password), enc);
+    } else {
+      const pw = te.encode(password);
+      let k = computeKeyR4(pw, enc);
+      if (checkUserR4(k, enc)) key = k;
+      else {
+        const up = ownerToUserPwd(pw, enc); k = computeKeyR4(up, enc);
+        if (checkUserR4(k, enc)) { key = k; usedOwner = true; }
+      }
+    }
+    if (!key) throw new Error(password ? 'WRONG_PASSWORD' : 'NEED_PASSWORD');
+
+    const objKey = (ref, aes) => {
+      if (R >= 5) return key;
+      const n = ref.objectNumber, g = ref.generationNumber;
+      const add = new Uint8Array([n & 255, (n >> 8) & 255, (n >> 16) & 255, g & 255, (g >> 8) & 255]);
+      const h = md5(concat(key, add, aes ? new Uint8Array([0x73, 0x41, 0x6C, 0x54]) : new Uint8Array(0)));
+      return h.slice(0, Math.min(key.length + 5, 16));
+    };
+    const decryptBytes = async (data, ref, method) => {
+      if (method === 'Identity' || !data.length) return data;
+      if (method === 'RC4') return rc4(objKey(ref, false), data);
+      if (data.length < 32 || data.length % 16) { if (data.length === 16) return new Uint8Array(0); }
+      try { return await aesCbcDecrypt(objKey(ref, true), data.slice(0, 16), data.slice(16)); }
+      catch (e) { return await aesCbcDecrypt(objKey(ref, true), data.slice(0, 16), data.slice(16, 16 + Math.floor((data.length - 16) / 16) * 16), true); }
+    };
+    const toHex = (b) => { let s = ''; for (const x of b) s += (x < 16 ? '0' : '') + x.toString(16); return s; };
+
+    async function fixValue(v, ref) {
+      if (v instanceof PDFString || v instanceof PDFHexString) return PDFHexString.of(toHex(await decryptBytes(v.asBytes(), ref, strMethod)));
+      if (v instanceof PDFArray) { for (let i = 0; i < v.size(); i++) v.set(i, await fixValue(v.get(i), ref)); return v; }
+      if (v instanceof PDFDict) { for (const [k, val] of v.entries()) v.set(k, await fixValue(val, ref)); return v; }
+      return v;
+    }
+
+    const encRef = trailer.Encrypt instanceof PDFRef ? trailer.Encrypt : null;
+    const objStms = [];
+    const entries = ctx.enumerateIndirectObjects();
+    let nStreams = 0, nStrings = 0;
+    for (const [ref, obj] of entries) {
+      if (encRef && ref.objectNumber === encRef.objectNumber) continue;
+      if (obj instanceof PDFRawStream) {
+        const type = obj.dict.get(PDFName.of('Type'));
+        const t = type ? type.asString() : '';
+        if (t === '/XRef') continue;
+        await fixValue(obj.dict, ref);
+        if (t === '/Metadata' && !enc.encryptMetadata) continue;
+        const dec = await decryptBytes(obj.contents, ref, stmMethod);
+        const ns = PDFRawStream.of(obj.dict, dec);
+        ns.dict.set(PDFName.of('Length'), PDFNumber.of(dec.length));
+        ctx.assign(ref, ns); nStreams++;
+        if (t === '/ObjStm') objStms.push([ref, ns]);
+      } else if (obj instanceof PDFDict || obj instanceof PDFArray || obj instanceof PDFString || obj instanceof PDFHexString) {
+        const nv = await fixValue(obj, ref); if (nv !== obj) ctx.assign(ref, nv); nStrings++;
+      }
+    }
+    // แตก object stream ที่ถอดรหัสแล้ว (object ข้างในไม่ต้องถอดซ้ำ)
+    for (const [r, s] of objStms) {
+      try { await PDFObjectStreamParser.forStream(s).parseIntoContext(); ctx.delete(r); } catch (e) { console.warn('ObjStm parse', r.toString(), e.message); }
+    }
+    delete trailer.Encrypt;
+    if (encRef) ctx.delete(encRef);
+    const doc = new PDFDocument(ctx, true, false);
+    const out = await doc.save({ useObjectStreams: false, updateFieldAppearances: false });
+    return { status: 'unlocked', bytes: out, info: { V, R, method: stmMethod, keyBits: R >= 5 ? 256 : key.length * 8, usedOwner, pages: doc.getPageCount(), P } };
+  }
+
+  // อ่านสิทธิ์จากค่า P (ใช้แสดงผล)
+  function permsFromP(P) {
+    const b = (n) => (P & (1 << (n - 1))) !== 0;
+    return { print: b(3), modify: b(4), copy: b(5), annotate: b(6), fillForms: b(9), assemble: b(11), printHigh: b(12) };
+  }
+
+  root.PdfUnlock = { unlockPdf, permsFromP, _md5: md5 };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+try {
+(function(){
+  const $ = id => document.getElementById('ul-' + id);
+  const view = document.querySelector('[data-view="unlock"]');
+  const active = () => view.classList.contains('active');
+  const drop = $('drop'), fin = $('file'), box = $('upBox'), list = $('list');
+  const step1 = drop.closest('.card').querySelector('.step-num');
+  const items = []; let busy = false, lastNew = new Set(), lastSkip = {bad:0, dup:0};
+  const fmt = n => n >= 1048576 ? (n/1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n/1024)) + ' KB';
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const outName = n => n.replace(/\.pdf$/i, '') + '_unlocked.pdf';
+
+  function addFiles(fl){
+    lastNew = new Set(); lastSkip = {bad:0, dup:0};
+    for (const f of fl){
+      if (!/\.pdf$/i.test(f.name) && f.type !== 'application/pdf'){ lastSkip.bad++; continue; }
+      if (items.some(it => it.file.name === f.name && it.file.size === f.size)){ lastSkip.dup++; continue; }
+      const it = {file:f, status:'wait'}; items.push(it); lastNew.add(it);
+    }
+    render();
+  }
+  function renderUpload(){
+    const has = items.length > 0;
+    drop.classList.toggle('done', has);
+    drop.querySelector('.drop-label').textContent = has ? 'อัปโหลดเสร็จแล้ว' : 'ลากไฟล์ PDF มาวางที่นี่';
+    drop.querySelector('.drop-hint').textContent = has ? 'ลากไฟล์มาวางหรือคลิกเพื่อเพิ่มไฟล์ได้อีก' : 'หรือคลิกเพื่อเลือกไฟล์จากเครื่อง (เลือกได้หลายไฟล์)';
+    step1.classList.toggle('done', has); step1.textContent = has ? '✓' : '1';
+    const skip = [];
+    if (lastSkip.bad) skip.push('ข้าม ' + lastSkip.bad + ' ไฟล์ที่ไม่ใช่ PDF');
+    if (lastSkip.dup) skip.push('ข้าม ' + lastSkip.dup + ' ไฟล์ที่เลือกซ้ำ');
+    if (!has && !skip.length){ box.hidden = true; return; }
+    const total = items.reduce((s, it) => s + it.file.size, 0), added = lastNew.size;
+    box.hidden = false; box.className = 'upbox' + (has ? '' : ' warn');
+    box.innerHTML = (has
+      ? '<div class="upbox-hd">✅ อัปโหลดเสร็จแล้ว ' + items.length + ' ไฟล์' + (added && added < items.length ? ' (เพิ่มใหม่ ' + added + ')' : '') +
+        '<span>รวม ' + fmt(total) + ' · ไปขั้นตอนที่ 3 เพื่อปลดล็อก</span></div><div class="upchips">' +
+        items.map(it => '<span class="upchip' + (lastNew.has(it) ? ' new' : '') + '" title="' + esc(it.file.name) + '">📄 ' + esc(it.file.name) + ' <small>' + fmt(it.file.size) + '</small></span>').join('') + '</div>'
+      : '<div class="upbox-hd">⚠️ ยังไม่มีไฟล์ PDF ที่ใช้ได้</div>')
+      + (skip.length ? '<div class="upbox-skip">⚠️ ' + skip.join(' · ') + '</div>' : '');
+  }
+  function render(){
+    renderUpload();
+    if (!items.length) list.innerHTML = '<tr><td colspan="4" class="empty-note">ยังไม่ได้เลือกไฟล์</td></tr>';
+    else list.innerHTML = items.map((it, i) => {
+      const p = {wait:['wait','รอปลดล็อก'], run:['run','⏳ กำลังปลดล็อก...'], ok:['ok','✅ ปลดล็อกแล้ว'],
+        none:['info','ไม่ได้ล็อก'], pw:['warn','🔑 ต้องใช้รหัสผ่าน'], err:['fail','❌ ไม่สำเร็จ']}[it.status];
+      return '<tr><td style="word-break:break-all">' + esc(it.file.name) + '<div class="ul-det">' + fmt(it.file.size) + '</div></td>' +
+        '<td><span class="pill ' + p[0] + '">' + p[1] + '</span>' + (it.detail ? '<div class="ul-det">' + esc(it.detail) + '</div>' : '') + '</td>' +
+        '<td>' + (it.status === 'ok' ? '<button class="btn teal" style="padding:6px 12px;font-size:13px" data-dl="' + i + '">ดาวน์โหลด</button>' : '') + '</td>' +
+        '<td>' + (busy ? '' : '<button class="ul-x" title="นำออก" data-rm="' + i + '">✕</button>') + '</td></tr>';
+    }).join('');
+    const pending = items.some(it => it.status === 'wait' || it.status === 'pw' || it.status === 'err');
+    $('go').disabled = busy || !pending;
+    $('zip').disabled = busy || !items.some(it => it.status === 'ok');
+    $('clear').disabled = busy || !items.length;
+  }
+  function describe(info){
+    const algo = info.R >= 5 ? 'AES-256' : info.method === 'AESV2' ? 'AES-128' : 'RC4 ' + info.keyBits + '-bit';
+    const p = PdfUnlock.permsFromP(info.P), b = [];
+    if (!p.print) b.push('พิมพ์'); if (!p.copy) b.push('คัดลอก'); if (!p.modify) b.push('แก้ไข');
+    if (!p.assemble) b.push('จัดหน้า'); if (!p.annotate) b.push('คอมเมนต์');
+    return info.pages + ' หน้า · ' + algo + (b.length ? ' · เดิมห้าม: ' + b.join(', ') : '') + (info.usedOwner ? ' · ใช้รหัสเจ้าของ' : '');
+  }
+  async function runAll(){
+    busy = true; const pw = $('pwd').value;
+    for (const it of items){
+      if (!(it.status === 'wait' || it.status === 'pw' || it.status === 'err')) continue;
+      it.status = 'run'; it.detail = ''; render();
+      await new Promise(r => setTimeout(r, 30));
+      try {
+        const r = await PdfUnlock.unlockPdf(new Uint8Array(await it.file.arrayBuffer()), {password: pw});
+        if (r.status === 'not-encrypted'){ it.status = 'none'; it.detail = 'ไฟล์นี้ไม่มีการล็อก ใช้ไฟล์เดิมได้เลย'; }
+        else { it.status = 'ok'; it.result = r.bytes; it.detail = describe(r.info); }
+      } catch (e) {
+        const m = (e && e.message) || String(e);
+        if (m === 'NEED_PASSWORD'){ it.status = 'pw'; it.detail = 'ไฟล์นี้ต้องใส่รหัสก่อนเปิดอ่าน — ใส่รหัสในข้อ 2 แล้วกดปลดล็อกอีกครั้ง'; }
+        else if (m === 'WRONG_PASSWORD'){ it.status = 'pw'; it.detail = 'รหัสผ่านไม่ถูกต้อง'; }
+        else if (m === 'UNSUPPORTED_HANDLER'){ it.status = 'err'; it.detail = 'ล็อกด้วยระบบเฉพาะ (เช่น ใบรับรองดิจิทัล/DRM) ไม่รองรับ'; }
+        else { it.status = 'err'; it.detail = 'ไฟล์อาจเสียหายหรือมีโครงสร้างพิเศษ: ' + m; console.error(e); }
+      }
+      render();
+    }
+    busy = false; render();
+  }
+  function dl(blob, name){
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+  fin.addEventListener('change', () => { addFiles(fin.files); fin.value = ''; });
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
+  // ลากวางที่ใดก็ได้ในหน้า (เฉพาะตอนเปิดหน้าปลดล็อก)
+  const veil = $('veil'); let depth = 0;
+  const hasFiles = e => e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+  window.addEventListener('dragenter', e => { if (!active() || !hasFiles(e)) return; e.preventDefault(); depth++; veil.classList.add('on'); });
+  window.addEventListener('dragover', e => { if (active() && hasFiles(e)) e.preventDefault(); });
+  window.addEventListener('dragleave', e => { if (!active() || !hasFiles(e)) return; depth = Math.max(0, depth - 1); if (!depth) veil.classList.remove('on'); });
+  window.addEventListener('drop', e => {
+    if (!active() || !hasFiles(e)) return;
+    e.preventDefault(); depth = 0; veil.classList.remove('on'); drop.classList.remove('drag');
+    if (!busy) addFiles(e.dataTransfer.files);
+  });
+  $('showPw').addEventListener('change', e => { $('pwd').type = e.target.checked ? 'text' : 'password'; });
+  $('go').addEventListener('click', runAll);
+  $('clear').addEventListener('click', () => { items.length = 0; lastNew = new Set(); lastSkip = {bad:0, dup:0}; render(); });
+  list.addEventListener('click', e => {
+    const d = e.target.dataset;
+    if (d.dl !== undefined){ const it = items[+d.dl]; dl(new Blob([it.result], {type:'application/pdf'}), outName(it.file.name)); }
+    if (d.rm !== undefined && !busy){ items.splice(+d.rm, 1); lastSkip = {bad:0, dup:0}; render(); }
+  });
+  $('zip').addEventListener('click', async () => {
+    const ok = items.filter(it => it.status === 'ok');
+    if (ok.length === 1) return dl(new Blob([ok[0].result], {type:'application/pdf'}), outName(ok[0].file.name));
+    if (typeof JSZip === 'undefined'){ alert('JSZip ไม่พร้อมใช้งาน — กรุณาดาวน์โหลดทีละไฟล์'); return; }
+    const z = new JSZip(); ok.forEach(it => z.file(outName(it.file.name), it.result));
+    dl(await z.generateAsync({type:'blob'}), 'PDF_unlocked.zip');
+  });
+  if (!(window.crypto && crypto.subtle)) $('go').insertAdjacentHTML('afterend', '<span class="pill fail">เบราว์เซอร์นี้ไม่รองรับการถอดรหัส — ใช้ Chrome หรือ Edge</span>');
+
+  // ตัดตามหน้า: ให้เลขขั้นตอนที่ 1 เปลี่ยนเป็น ✓ เหมือนหน้าอื่น เมื่ออัปโหลดเสร็จ
+  const pcUp = document.getElementById('pc-upStatus');
+  if (pcUp){
+    const pcStep = pcUp.closest('.card').querySelector('.step-num');
+    new MutationObserver(() => { const ok = pcUp.classList.contains('ok'); pcStep.classList.toggle('done', ok); pcStep.textContent = ok ? '✓' : '1'; })
+      .observe(pcUp, {attributes:true, attributeFilter:['class']});
+  }
+  render();
+})();
+} catch (err) { console.error("ปลดล็อก PDF: เริ่มทำงานไม่สำเร็จ — " + (err && err.message ? err.message : err)); }
 </script>
 </body>
 </html>
